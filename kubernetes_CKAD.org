@@ -220,6 +220,53 @@ apiVersion: v1
   #+END_SRC
 
 ** Config Maps
+Doc link: [[https://kubernetes.io/docs/concepts/configuration/configmap/][ConfigMaps]]
+
+#+BEGIN_QUOTE
+A ConfigMap is an API object used to store non-confidential data in key-value pairs. Pods can consume ConfigMaps as environment variables, command-line arguments, or as configuration files in a volume.
+A ConfigMap allows you to decouple environment-specific configuration from your container images, so that your applications are easily portable.
+#+END_QUOTE
+
+*** How to use:
+- Imperative
+ #+BEGIN_SRC shell
+
+"create configmapi literal"
+kubectl create configmap <config-name> --from-literal=<key>=<value>
+
+"create configmap config file"
+kubectl create configmap <config-name> --from-file=<path-to-file>
+
+
+ #+END_SRC
+
+- Declarative
+
+#+BEGIN_SRC yaml
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: game-demo
+data:
+  # property-like keys; each key maps to a simple value
+  player_initial_lives: "3"
+  ui_properties_file_name: "user-interface.properties"
+
+  # file-like keys
+  game.properties: |
+    enemy.types=aliens,monsters
+    player.maximum-lives=5
+  user-interface.properties: |
+    color.good=purple
+    color.bad=yellow
+    allow.textmode=true
+
+#+END_SRC
+#+BEGIN_SRC shell
+kubectl create -f <filename>
+#+END_SRC
+
 ** Environment Variable
 ** Replica Sets
 ** Security Context
@@ -263,7 +310,7 @@ kubectl create -f <filename>
 *** View secrets:
 #+BEGIN_SRC  shell
 
-"Show secrets"
+"Show secrets       "
 kubectl get secrets
 
 "describe secrets"
