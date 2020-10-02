@@ -227,7 +227,7 @@ A ConfigMap is an API object used to store non-confidential data in key-value pa
 A ConfigMap allows you to decouple environment-specific configuration from your container images, so that your applications are easily portable.
 #+END_QUOTE
 
-*** How to use:
+*** How to create config maps:
 - Imperative
  #+BEGIN_SRC shell
 
@@ -265,6 +265,43 @@ data:
 #+END_SRC
 #+BEGIN_SRC shell
 kubectl create -f <filename>
+#+END_SRC
+
+*** How to inject config maps
+#+BEGIN_SRC
+"show exitsting maps"
+ kubectl get configmaps
+
+"describe map"
+kubectl describe configmaps
+
+#+END_SRC
+
+- Inject to pod's
+  + Inject config file
+#+BEGIN_SRC yaml
+apiVersion: v1
+kind: Pod
+metadata:
+spec:
+ containers:
+  envFrom:
+    - configMapRef:
+       name: <config name>
+
+#+END_SRC
+  + Inject singe config
+
+#+BEGIN_SRC yaml
+apiVersion: v1
+kind: Pod
+metadata:
+spec:
+ containers:
+  envFrom:
+    - configMapKeyRef:
+       name: <config name>
+       key: <key>
 #+END_SRC
 
 ** Environment Variable
