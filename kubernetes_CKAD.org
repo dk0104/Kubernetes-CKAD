@@ -7,13 +7,6 @@
   #+BEGIN_SRC
   kubectl explain <opject> --recursive
   #+END_SRC
-- some useful imperative commands
-  | command                                                                     | description       |
-  |-----------------------------------------------------------------------------+-------------------|
-  | kubectl run nginx --image=nginx                                             | create [[Deployment]] |
-  | kubectl run nginx --image=nginx --restart=Never                             | create [[Pod]]        |
-  | kubectl run nginx --image=nginx --restart=OnFailure                         | create [[Job]]        |
-  | kubectl run nginx --image=nginx  --restart=OnFailure --schedule="* * * * *" | create cronJob    |
 
 ** [[Pod]]
 - Create imperative pod
@@ -72,19 +65,21 @@ Both the above commands have their own challenges. While one of it cannot accept
 
 * kubectl api
 [[https://kubernetes.io/docs/reference/kubectl/cheatsheet/][Kubernetes docs cheat sheet]]
+
 ** run
 
-| Description                     | Command                                                                    |
-|---------------------------------+----------------------------------------------------------------------------|
-| Run deployment with x replicas  | kubectl run deployment --image=<image> --replicas=<num>                    |
-| Dryrun pod and write it to yaml | kubectl run pod <name> --image=<image> --dry-run -o yaml > <filename>.yaml |
-|                                 |                                                                            |
-
+| command                                                                     | description       |
+|-----------------------------------------------------------------------------+-------------------|
+| kubectl run nginx --image=nginx                                             | create [[Deployment]] |
+| kubectl run nginx --image=nginx --restart=Never                             | create [[Pod]]        |
+| kubectl run nginx --image=nginx --restart=OnFailure                         | create [[Job]]        |
+| kubectl run nginx --image=nginx  --restart=OnFailure --schedule="* * * * *" | create cronJob    |
 ** exec
 | Description | Command |
 |-------------+---------|
 |             |         |
 ** create
+
 | Description        | Command                                           |
 |--------------------+---------------------------------------------------|
 | Create deployment  | kubectl create deployment <name> --image=<image>  |
@@ -93,6 +88,26 @@ Both the above commands have their own challenges. While one of it cannot accept
 |                    | --from-literal=password='S!B\*d$zDsb='            |
 | Create secret file | kubectl create secret genereic --from-file=<path> |
 |                    |                                                   |
+
+*** Generators
+| kubectl create <genereator> --dry-run=client -o yaml |                                                                   |
+| clusterrole                                          | Create a ClusterRole.                                             |
+| clusterrolebinding                                   | Create a ClusterRoleBinding for a particular ClusterRole.         |
+| configmap                                            | Create a configmap from a local file, directory or literal value. |
+| cronjob                                              | Create a cronjob with the specified name.                         |
+| deployment                                           | Create a deployment with the specified name.                      |
+| job                                                  | Create a job with the specified name.                             |
+| namespace                                            | Create a namespace with the specified name.                       |
+| poddisruptionbudget                                  | Create a pod disruption budget with the specified name.           |
+| priorityclass                                        | Create a priorityclass with the specified name.                   |
+| quota                                                | Create a quota with the specified name.                           |
+| role                                                 | Create a role with single rule.                                   |
+| rolebinding                                          | Create a RoleBinding for a particular Role or ClusterRole.        |
+| secret                                               | Create a secret using specified subcommand.                       |
+| service                                              | Create a service using specified subcommand.                      |
+| serviceaccount                                       | Create a service account with the specified name.                 |
+|                                                      |                                                                   |
+
 ** describe
 | Description | Command |
 |-------------+---------|
@@ -112,6 +127,27 @@ get pod,pods, pv ,services,node,nodes,events,
 * Core Concepts
 ** Pod
 ** Namespace
+Doc link: [[https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/][Namespace]]
+#+BEGIN_QUOTE
+Kubernetes supports multiple virtual clusters backed by the same physical cluster. These virtual clusters are called namespaces.
+#+END_QUOTE
+
+How to use:
+
+#+BEGIN_SRC shell
+
+"List namespaces in cluster:"
+kubectl get namespace
+
+"Get elleenst for all namespaces"
+kubectl get all -A
+
+"Setting the namespace for a request"
+kubectl run <name> --image=<image> --namespace=<namespace>
+#+END_SRC
+
+#+RESULTS:
+
 ** Deployment
 [[https://kubernetes.io/docs/concepts/workloads/controllers/deployment/][Deployment]]
 #+BEGIN_QUOTE
