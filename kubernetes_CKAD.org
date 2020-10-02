@@ -1,0 +1,342 @@
+#+TITLE: Kubernetes CKAD
+* Certification hacks
+- use --dry-run=client
+- use -o yaml to create resource definition file
+- read  [[https://kubernetes.io/docs/reference/kubectl/conventions/][conventions]]
+- use explain commands
+  #+BEGIN_SRC
+  kubectl explain <opject> --recursive
+  #+END_SRC
+- some useful imperative commands
+  | command                                                                     | description       |
+  |-----------------------------------------------------------------------------+-------------------|
+  | kubectl run nginx --image=nginx                                             | create [[Deployment]] |
+  | kubectl run nginx --image=nginx --restart=Never                             | create [[Pod]]        |
+  | kubectl run nginx --image=nginx --restart=OnFailure                         | create [[Job]]        |
+  | kubectl run nginx --image=nginx  --restart=OnFailure --schedule="* * * * *" | create cronJob    |
+
+** [[Pod]]
+- Create imperative pod
+  #+BEGIN_SRC
+  kubectl run <name> --image=<image>
+  #+END_SRC
+- Create imperative podfile
+  #+BEGIN_SRC
+  `kubectl run <name> --image=<image> --dry-run=client -o yaml``
+  #+END_SRC
+** [[Deployment]]
+- create simple deployment
+  #+BEGIN_SRC
+  kubectl create deployment --image=<image> <name>
+  #+END_SRC
+- create simple deploymentfile
+  #+BEGIN_SRC
+  `kubectl create deployment --image=<image> <name> --dry-run=client -o yaml > <filename>
+  #+END_SRC
+- Important no replicas param use "kubectl scale" instead
+** [[Service]]
+Orig link: [[https://kubernetes.io/docs/concepts/services-networking/service/][Service]]
+
+#+BEGIN_QUOTE
+An abstract way to expose an application running on a set of Pods as a network service.
+With Kubernetes you don't need to modify your application to use an unfamiliar service discovery mechanism. Kubernetes gives Pods their own IP addresses and a single DNS name for a set of Pods, and can load-balance across them.
+#+END_QUOTE
+
+
+Create a Service named redis-service of type ClusterIP to expose pod redis on port 6379
+#+BEGIN_SRC
+kubectl expose pod redis --port=6379 --name redis-service --dry-run=client -o yaml
+#+END_SRC
+(This will automatically use the pod's labels as selectors)
+
+Or
+#+BEGIN_SRC
+kubectl create service clusterip redis --tcp=6379:6379 --dry-run=client -o yaml
+#+END_SRC
+(This will not use the pods labels as selectors, instead it will assume selectors as app=redis. You cannot pass in selectors as an option. So it does not work very well if your pod has a different label set. So generate the file and modify the selectors before creating the service)
+
+Create a Service named nginx of type NodePort to expose pod nginx's port 80 on port 30080 on the nodes:
+#+BEGIN_SRC
+kubectl expose pod nginx --port=80 --name nginx-service --type=NodePort --dry-run=client -o yaml
+#+END_SRC
+(This will automatically use the pod's labels as selectors, but you cannot specify the node port. You have to generate a definition file and then add the node port in manually before creating the service with the pod.)
+
+Or
+
+#+BEGIN_SRC
+kubectl create service nodeport nginx --tcp=80:80 --node-port=30080 --dry-run=client -o yaml
+#+END_SRC
+
+(This will not use the pods labels as selectors)
+Both the above commands have their own challenges. While one of it cannot accept a selector the other cannot accept a node port. I would recommend going with the `kubectl expose` command. If you need to specify a node port, generate a definition file using the same command and manually input the nodeport before creating the service
+
+* kubectl api
+[[https://kubernetes.io/docs/reference/kubectl/cheatsheet/][Kubernetes docs cheat sheet]]
+** run
+
+| Description                     | Command                                                                    |
+|---------------------------------+----------------------------------------------------------------------------|
+| Run deployment with x replicas  | kubectl run deployment --image=<image> --replicas=<num>                    |
+| Dryrun pod and write it to yaml | kubectl run pod <name> --image=<image> --dry-run -o yaml > <filename>.yaml |
+|                                 |                                                                            |
+
+** exec
+| Description | Command |
+|-------------+---------|
+|             |         |
+** create
+| Description        | Command                                           |
+|--------------------+---------------------------------------------------|
+| Create deployment  | kubectl create deployment <name> --image=<image>  |
+| Create secret      | kubectl create secret generic dev-db-secret \     |
+|                    | --from-literal=username=devuser \                 |
+|                    | --from-literal=password='S!B\*d$zDsb='            |
+| Create secret file | kubectl create secret genereic --from-file=<path> |
+|                    |                                                   |
+** describe
+| Description | Command |
+|-------------+---------|
+|             |         |
+** get
+get pod,pods, pv ,services,node,nodes,events,
+| Description  | Command             |
+|--------------+---------------------|
+| Show secrets | kubectl get secrets |
+|              |                     |
+
+** edit
+| Description | Command |
+|-------------+---------|
+|             |         |
+
+* Core Concepts
+** Pod
+** Namespace
+** Deployment
+[[https://kubernetes.io/docs/concepts/workloads/controllers/deployment/][Deployment]]
+#+BEGIN_QUOTE
+A Deployment provides declarative updates for Pods ReplicaSets.
+
+You describe a desired state in a Deployment, and the Deployment Controller changes the actual state to the desired state at a controlled rate. You can define Deployments to create new ReplicaSets, or to remove existing Deployments and adopt all their resources with new Deployments.
+#+END_QUOTE
+
+example file
+#+BEGIN_SRC
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+     app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+       app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+  spec:
+    containers:
+    - name: nginx
+      image: nginx:1.14.2
+      ports:
+        - containerPort: 80
+#+END_SRC
+** Service
+[[https://kubernetes.io/docs/concepts/services-networking/service/][Service]]
+
+#+BEGIN_QUOTE
+An abstract way to expose an application running on a set of Pods as a network service.
+With Kubernetes you don't need to modify your application to use an unfamiliar service discovery mechanism. Kubernetes gives Pods their own IP addresses and a single DNS name for a set of Pods, and can load-balance across them.
+#+END_QUOTE
+
+*** How to use :
+#+BEGIN_SRC yaml
+apiVersion: v1
+
+
+#+END_SRC
+
+* Configuration
+** Config Maps
+** Environment Variable
+** Replica Sets
+** Security Context
+** Secret
+[[https://kubernetes.io/docs/concepts/configuration/secret/][Secret]]
+#+BEGIN_QUOTE
+Kubernetes Secrets let you store and manage sensitive information, such as passwords, OAuth tokens, and ssh keys. Storing confidential information in a Secret is safer and more flexible than putting it verbatim in a Pod definition or in a container image. See Secrets design document for more information
+#+END_QUOTE
+*** how to use:
+**** Imperative Way to create secrets:
+
+#+BEGIN_SRC
+kubectl create secret generic dev-db-secret \
+    --from-literal=username=devuser \
+    --from-literal=password='S!B\*d$zDsb='
+#+END_SRC
+
+#+BEGIN_SRC
+kubectl create secret generic dev-db-secret \
+    --from-file=<path to file>
+#+END_SRC
+
+**** Declarative way to create secrets:
+#+BEGIN_SRC
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-secret
+
+data:
+  <Key>: <value>
+#+END_SRC
+
+kubectl create -f <filename>
+
+*** Simple way to encrypt secret using Base64 encryption
+#+BEGIN_SRC shell
+ echo -n <value> | base64
+#+END_SRC
+
+*** View secrets:
+#+BEGIN_SRC  shell
+
+"Show secrets"
+kubectl get secrets
+
+"describe secrets"
+kubectl describe secrets
+
+"show secret values "
+kubectl get secret app-secret -o yaml
+#+END_SRC
+
+#+RESULTS:
+
+*** Pod integration
+#+BEGIN_SRC yaml
+apiVersion: v1
+kind: Pod
+
+spec:
+  containers:
+    envFrom:
+      - secretRef:
+          name: <secret:name>
+
+#+END_SRC
+Secrets could be injected as Single value Environment variable or volume.
+
+** Service Accounts
+** Taints and Tolerations
+** Resource Request
+** Node Selectors
+** Node Affinity
+** Pods
+
+* Observability
+** Monitoring and Debug
+** Logs
+** Readiness and Liveness Probes
+** Container Logging
+** Liveness Probes
+* Pod Design
+** Labels and Selectors
+[[https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/][Labels and Selectors]]
+#+BEGIN_QUOTE
+Labels are key/value pairs that are attached to objects, such as pods. Labels are intended to be used to specify identifying attributes of objects that are meaningful and relevant to users, but do not directly imply semantics to the core system. Labels can be used to organize and to select subsets of objects. Labels can be attached to objects at creation time and subsequently added and modified at any time. Each object can have a set of key/value labels defined. Each Key must be unique for a given object.
+#+END_QUOTE
+
+Main reason for filtering ( Bridge tags filters )
+
+*** How to use:
+- Filter manually
+    #+BEGIN_SRC
+    kubectl get pods --selector <label key>=<label val>
+    #+END_SRC
+- Address pods on replica sets
+  Replica set definiton file
+  #+BEGIN_SRC
+  apiVersion: apps/v1
+  kind: ReplicaSet
+  ...
+  spec:
+    replicas: <num of replicas>
+    selector:
+      matchLabels:
+        app: App1             | -> Connect replica sets to the pod
+    template:
+      metadata:
+        labels:
+          app: App1
+          function: Front-end | -> Pod labels
+
+  #+END_SRC
+
+* Secvices and Networking
+* State Presistance
+** Persistent Volumes
+[[https://kubernetes.io/docs/concepts/storage/persistent-volumes/][Persistent Volumes]]
+** Persistent Volume Claims
+[[https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims][Persistant volume claim]]
+
+#+BEGIN_SRC yalm
+apiVersion:v1
+kind: PersistentVolumeClaim
+metadata:
+  name: myclaim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+       storage: 8Gi
+  storageClassName: slow
+  selector:
+    matchLabels:
+      release: "stable"
+    matchExpressions:
+      - {key: environment, operator: In, values: [dev]}
+
+#+END_SRC
+
+* Tool ideas etc.
+** Bash alias entries
+#+BEGIN_SRC sh
+alias k='kubectl'
+alias c='k create'
+alias d='k delete'
+alias de='k describe'
+alias e='k edit'
+alias r='k run'
+alias roll='k rollout'
+#+END_SRC
+
+start autocomplition :
+#+BEGIN_SRC shell
+ complete -F __start_kubectl k
+#+END_SRC
+** Vimrc settings
+#+BEGIN_SRC vimrc
+  set ts=2 sw=2 expandtab
+  set nu
+
+#+END_SRC
+**  TODO:
+ [ ] Read [[https://kubernetes.io/docs/tasks/administer-cluster/declare-network-policy/][Declare Network Polilcy]]
+
+* Exercise notes
+** Game of Pods
+*** Drupal cms
+Create Service file:
+
+#+BEGIN_SRC
+k create service nodeport drupal-service --node-port=30095 --tcp=80 --dry-run=true -o yaml > drupal_service.yaml
+#+END_SRC
+
+- [X] TODO: Read about[[https://kubernetes.io/docs/concepts/workloads/pods/init-containers/][ Init Containers]]
