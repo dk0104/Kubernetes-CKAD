@@ -277,6 +277,36 @@ Main reason for filtering ( Bridge tags filters )
 
   #+END_SRC
 
+** Init Containers
+- kubernetes doc ref: [[https://kubernetes.io/docs/concepts/workloads/pods/init-containers/][Init Containers]]
+
+  #+BEGIN_QUOTE
+  This page provides an overview of init containers: specialized containers that run before app containers in a Pod. Init containers can contain utilities or setup scripts not present in an app image.
+  You can specify init containers in the Pod specification alongside the containers array (which describes app containers).
+  #+END_QUOTE
+
+
+#+BEGIN_SRC
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-pod
+  labels:
+    app: myapp
+spec:
+  containers:
+  - name: myapp-container
+    image: busybox:1.28
+    command: ['sh', '-c', 'echo The app is running! && sleep 3600']
+  initContainers:
+  - name: init-myservice
+    image: busybox:1.28
+    command: ['sh', '-c', "until nslookup myservice.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for myservice; sleep 2; done"]
+  - name: init-mydb
+    image: busybox:1.28
+    command: ['sh', '-c', "until nslookup mydb.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for mydb; sleep 2; done"]
+#+END_SRC
+
 * Secvices and Networking
 * State Presistance
 ** Persistent Volumes
