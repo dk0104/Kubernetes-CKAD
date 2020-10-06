@@ -1,5 +1,5 @@
 #+TITLE: Kubernetes CKAD
-* Certification hacks
+* Certification nontes
 - use --dry-run=client
 - use -o yaml to create resource definition file
 - read  [[https://kubernetes.io/docs/reference/kubectl/conventions/][conventions]]
@@ -8,28 +8,7 @@
   kubectl explain <opject> --recursive
   #+END_SRC
 - Avoid running "kubectl edit pod <pod name>" use "kubectl get pod <name> -o yaml > <name>.yaml" instead
-
-** [[Pod]]
-- Create imperative pod
-  #+BEGIN_SRC
-  kubectl run <name> --image=<image>
-  #+END_SRC
-- Create imperative podfile
-  #+BEGIN_SRC
-  `kubectl run <name> --image=<image> --dry-run=client -o yaml``
-  #+END_SRC
-** [[Deployment]]
-- create simple deployment
-  #+BEGIN_SRC
-  kubectl create deployment --image=<image> <name>
-  #+END_SRC
-- create simple deploymentfile
-  #+BEGIN_SRC
-  `kubectl create deployment --image=<image> <name> --dry-run=client -o yaml > <filename>
-  #+END_SRC
-- Important no replicas param use "kubectl scale" instead
 ** [[Service]]
-Orig link: [[https://kubernetes.io/docs/concepts/services-networking/service/][Service]]
 
 #+BEGIN_QUOTE
 An abstract way to expose an application running on a set of Pods as a network service.
@@ -66,19 +45,32 @@ Both the above commands have their own challenges. While one of it cannot accept
 
 * kubectl api
 [[https://kubernetes.io/docs/reference/kubectl/cheatsheet/][Kubernetes docs cheat sheet]]
+** delete
+| command                                    | description              |
+|--------------------------------------------+--------------------------|
+| kubectl delete pod <name> --grace-period=0 | Delete pod with no delay |
+|                                            |                          |
 
 ** run
 
-| command                                                                     | description       |
-|-----------------------------------------------------------------------------+-------------------|
-| kubectl run nginx --image=nginx                                             | create [[Deployment]] |
-| kubectl run nginx --image=nginx --restart=Never                             | create [[Pod]]        |
-| kubectl run nginx --image=nginx --restart=OnFailure                         | create [[Job]]        |
-| kubectl run nginx --image=nginx  --restart=OnFailure --schedule="* * * * *" | create cronJob    |
+| command                                                                     | description            |
+|-----------------------------------------------------------------------------+------------------------|
+| kubectl run nginx --image=nginx                                             | create [[Deployment]]      |
+| kubectl run nginx --image=nginx --restart=Never                             | create [[Pod]]             |
+| kubectl run nginx --image=nginx --restart=OnFailure                         | create [[Job]]             |
+| kubectl run nginx --image=nginx  --restart=OnFailure --schedule="* * * * *" | create cronJob         |
+| kubectl run <name> --image=<image> --restart=Never -it --rm --echo "tex"    | create and send output |
+| kubectl run <name> --image=<image> --labes=<label key>=<label val>          | create pod with labels |
+|                                                                             |                        |
+
 ** exec
-| Description | Command |
-|-------------+---------|
-|             |         |
+
+| Description             | Command                                 |
+|-------------------------+-----------------------------------------|
+| Exec into the pod       | kubectl exec --it <name> /bin/sh        |
+| Run command on multipod | kubectl exec <name> -c <container name> |
+|                         |                                         |
+
 ** create
 
 | Description        | Command                                           |
@@ -110,24 +102,60 @@ Both the above commands have their own challenges. While one of it cannot accept
 |                                                      |                                                                   |
 
 ** describe
+
 | Description | Command |
 |-------------+---------|
 |             |         |
+
 ** get
+
 get pod,pods, pv ,services,node,nodes,events,
-| Description  | Command             |
-|--------------+---------------------|
-| Show secrets | kubectl get secrets |
-|              |                     |
+| Description                            | Command                                                           |
+|----------------------------------------+-------------------------------------------------------------------|
+| Show secrets                           | kubectl get secrets                                               |
+| Check the image version                | kubectl get pod <name> -o jsonpath='.spec.containers[].image{"\n} |
+| list sorted                            | kubectl get pods--sort-by=.metadata.creationTimestamp             |
+| Get pods with labels                   | kubectl get pods --show-labels                                    |
+| Get pod with sertain labels            | kubectl get pods -l <label val>=<label key> --show labels         |
+| Get pods with label keys               | kubectl get pods -L env                                           |
+| Get pods with multi label key val pair | kubectl get pods -l '<label key> in <val1,val2>' --show-labels    |
+|                                        |                                                                   |
 
 ** edit
+
 | Description                        | Command                        |
 |------------------------------------+--------------------------------|
 | Edit pod (not ediatble if running) | kubectl edit pod<name>         |
 | Edit deployment                    | kubectl edit deployment <name> |
 
+** logs
+
+| Description             | Command                                 |
+|-------------------------+-----------------------------------------|
+| logs multiple contaiers | kubectl logs <name> -c <container name> |
+|                         |                                         |
+|                         |                                         |
+|                         |                                         |
+
+** label
+
+| Description      | Command                                  |
+|------------------+------------------------------------------|
+| change the label | kubectl label <name> env=uat --overwrite |
+|                  |                                          |
+
 * Core Concepts
-** Pod
+** [[Deployment]]
+Orig link: [[https://kubernetes.io/docs/concepts/services-networking/service/][Service]]
+** [[Pod]]
+- Create imperative pod
+  #+BEGIN_SRC
+  kubectl run <name> --image=<image>
+  #+END_SRC
+- Create imperative podfile
+  #+BEGIN_SRC
+  `kubectl run <name> --image=<image> --dry-run=client -o yaml``
+  #+END_SRC
 ** Namespace
 Doc link: [[https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/][Namespace]]
 #+BEGIN_QUOTE
@@ -183,21 +211,16 @@ spec:
       ports:
         - containerPort: 80
 #+END_SRC
-** Service
-[[https://kubernetes.io/docs/concepts/services-networking/service/][Service]]
 
-#+BEGIN_QUOTE
-An abstract way to expose an application running on a set of Pods as a network service.
-With Kubernetes you don't need to modify your application to use an unfamiliar service discovery mechanism. Kubernetes gives Pods their own IP addresses and a single DNS name for a set of Pods, and can load-balance across them.
-#+END_QUOTE
-
-*** How to use :
-#+BEGIN_SRC yaml
-apiVersion: v1
-
-
-#+END_SRC
-
+- create simple deployment
+  #+BEGIN_SRC
+  kubectl create deployment --image=<image> <name>
+  #+END_SRC
+- create simple deploymentfile
+  #+BEGIN_SRC
+  `kubectl create deployment --image=<image> <name> --dry-run=client -o yaml > <filename>
+  #+END_SRC
+- Important no replicas param use "kubectl scale" instead
 * Configuration
 ** Command and Arguments
 - Doc link: [[https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/][Define a Command and Arguments for Container]]
