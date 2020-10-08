@@ -7,7 +7,17 @@
   #+BEGIN_SRC
   kubectl explain <opject> --recursive
   #+END_SRC
-- Avoid running "kubectl edit pod <pod name>" use "kubectl get pod <name> -o yaml > <name>.yaml" instead
+-  Avoid running "kubectl edit pod <pod name>" use "kubectl get pod <name> -o yaml > <name>.yaml" instead
+- some useful imperative commands
+  | command                                                                     | description       |
+  |-----------------------------------------------------------------------------+-------------------|
+  | kubectl run nginx --image=nginx                                             | create [[Deployment]] |
+  | kubectl run nginx --image=nginx --restart=Never                             | create [[Pod]]        |
+  | kubectl run nginx --image=nginx --restart=OnFailure                         | create [[Job]]        |
+  | kubectl run nginx --image=nginx  --restart=OnFailure --schedule="* * * * *" | create cronJob    |
+  |                                                                             |                   |
+
+
 ** [[Service]]
 
 #+BEGIN_QUOTE
@@ -44,9 +54,9 @@ kubectl create service nodeport nginx --tcp=80:80 --node-port=30080 --dry-run=cl
 Both the above commands have their own challenges. While one of it cannot accept a selector the other cannot accept a node port. I would recommend going with the `kubectl expose` command. If you need to specify a node port, generate a definition file using the same command and manually input the nodeport before creating the service
 
 * kubectl api
-[[https://kubernetes.io/docs/reference/kubectl/cheatsheet/][Kubernetes docs cheat sheet]]
+[[https://kubernetes.io/docs/reference/kubectl/cheatsheet/][Kubernetes docs cheat sheet ]]
 ** delete
-| command                                    | description              |
+| command                                    |                          |
 |--------------------------------------------+--------------------------|
 | kubectl delete pod <name> --grace-period=0 | Delete pod with no delay |
 |                                            |                          |
@@ -147,6 +157,39 @@ get pod,pods, pv ,services,node,nodes,events,
 * Core Concepts
 ** [[Deployment]]
 Orig link: [[https://kubernetes.io/docs/concepts/services-networking/service/][Service]]
+
+#+BEGIN_QUOTE
+A Deployment provides declarative updates for Pods ReplicaSets.
+
+You describe a desired state in a Deployment, and the Deployment Controller changes the actual state to the desired state at a controlled rate. You can define Deployments to create new ReplicaSets, or to remove existing Deployments and adopt all their resources with new Deployments.
+#+END_QUOTE
+
+example file
+#+BEGIN_SRC
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+     app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+       app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+  spec:
+    containers:
+    - name: nginx
+      image: nginx:1.14.2
+      ports:
+        - containerPort: 80
+#+END_SRC
+
 ** [[Pod]]
 - Create imperative pod
   #+BEGIN_SRC
@@ -221,6 +264,21 @@ spec:
   `kubectl create deployment --image=<image> <name> --dry-run=client -o yaml > <filename>
   #+END_SRC
 - Important no replicas param use "kubectl scale" instead
+** Service
+[[https://kubernetes.io/docs/concepts/services-networking/service/][Service]]
+
+#+BEGIN_QUOTE
+An abstract way to expose an application running on a set of Pods as a network service.
+With Kubernetes you don't need to modify your application to use an unfamiliar service discovery mechanism. Kubernetes gives Pods their own IP addresses and a single DNS name for a set of Pods, and can load-balance across them.
+#+END_QUOTE
+
+*** How to use :
+#+BEGIN_SRC yaml
+apiVersion: v1
+
+
+#+END_SRC
+
 * Configuration
 ** Command and Arguments
 - Doc link: [[https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/][Define a Command and Arguments for Container]]
@@ -398,6 +456,32 @@ Secrets could be injected as Single value Environment variable or volume.
 
 ** Service Accounts
 ** Taints and Tolerations
+Doc link:  [[https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/][Taints and toleration]]
+#+BEGIN_QUOTE
+Node affinity, is a property of Pods that attracts them to a set of nodes (either as a preference or a hard requirement). Taints are the opposite -- they allow a node to repel a set of pods.
+Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
+Taints and tolerations work together to ensure that pods are not scheduled onto inappropriate nodes. One or more taints are applied to a node; this marks that the node should not accept any pods that do not tolerate the taints.
+#+END_QUOTE
+
+- How to:
+  - Taint Node
+    #+BEGIN_SRC
+    kubctl taint nodes node-name key=value:taint-effect
+    #+END_SRC
+    Taint-effect
+    | NoSchedule       | avoid placing the node on the pod             |
+    | PreferNoSchedule | try to avoid placing the pod on the node      |
+    | NoExecute        | Avoid new pods, existing pods will be evicted |
+  - Apply tolarations to pods
+    #+BEGIN_SRC yaml
+    apiVersion: v1
+    spec:
+      tolarations:
+      - key:"<key>"
+        operator:"<operator>"
+        value: "<value>"
+    #+END_SRC
+
 ** Resource Request
 ** Node Selectors
 ** Node Affinity
@@ -476,7 +560,6 @@ spec:
 Doc link :[[https://kubernetes.io/docs/concepts/workloads/controllers/job/][Jobs ]]
 Doc link [[https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/][Cron Jobs]]:
 - Jobs are ment to perform some tastks -> Pods in order to completion and not for ever like ReplicaSets
-
 *** How to create a job
 - Pod definition
 #+BEGIN_SRC
@@ -485,7 +568,7 @@ kind: Pod
 metadata:
 name: math-pod
 spec:
-containers:
+  containers:
     - name:
       image:
       command: []
@@ -500,8 +583,8 @@ kind: Job
 metadata:
 name: math-pod
 spec:
-completions: <number of inst>       | only number of comnl runs count
-parallelism: <num>                  | completed parallel
+  completions: <number of inst>       | only number of comnl runs count
+  parallelism: <num>                  | completed parallel
 template:
     spec:
     containers:
@@ -520,7 +603,71 @@ template:
 | kubectl logs <pod>                    | Job output standard pod output |
 |                                       |                                |
 
+** Rolling updates and Rollback in Deployment
+*** Rollout and versioning
+- Deployment strategy
+
+*** Examles
+| Command                                   | Description                     |
+|-------------------------------------------+---------------------------------|
+| kubectl rollout status <deployment name>  | Shows current deployment status |
+| kubectl rollout history <deployment name> | Shows deployment history        |
+| kubectl apply -f <depl definition file>   | Pod changed -> rollout trigger  |
 * Secvices and Networking
+** Network Policy
+[[https://kubernetes.io/docs/concepts/services-networking/network-policies/][NetworkPolicy]]
+
+#+BEGIN_QUOTE
+If you want to control traffic flow at the IP address or port level (OSI layer 3 or 4), then you might consider using Kubernetes NetworkPolicies for particular applications in your cluster. NetworkPolicies are an application-centric construct which allow you to specify how a pod is allowed to communicate with various network "entities" (we use the word "entity" here to avoid overloading the more common terms such as "endpoints" and "services", which have specific Kubernetes connotations) over the network.
+
+The entities that a Pod can communicate with are identified through a combination of the following 3 identifiers:
+
+Other pods that are allowed (exception: a pod cannot block access to itself)
+Namespaces that are allowed
+IP blocks (exception: traffic to and from the node where a Pod is running is always allowed, regardless of the IP address of the Pod or the node)
+When defining a pod- or namespace- based NetworkPolicy, you use a selector to specify what traffic is allowed to and from the Pod(s) that match the selector.
+
+Meanwhile, when IP based NetworkPolicies are created, we define policies based on IP blocks (CIDR ranges).
+#+END_QUOTE
+
+- Examles:
+#+BEGIN_SRC
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: test-network-policy
+  namespace: default
+spec:
+  podSelector:
+  matchLabels:
+    role: db
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - ipBlock:
+        cidr: 172.17.0.0/16
+        except:
+        - 172.17.1.0/24
+    - namespaceSelector:
+        matchLabels:
+          project: myproject
+    - podSelector:
+        matchLabels:
+          role: frontend
+    ports:
+    - protocol: TCP
+    port: 6379
+  egress:
+  - to:
+    - ipBlock:
+        cidr: 10.0.0.0/24
+    ports:
+    - protocol: TCP
+      port: 5978
+#+END_SRC
+
 * State Presistance
 ** Persistent Volumes
 [[https://kubernetes.io/docs/concepts/storage/persistent-volumes/][Persistent Volumes]]
@@ -559,7 +706,6 @@ alias e='k edit'
 alias r='k run'
 alias roll='k rollout'
 #+END_SRC
-
 start autocomplition :
 #+BEGIN_SRC shell
  complete -F __start_kubectl k
@@ -568,10 +714,15 @@ start autocomplition :
 #+BEGIN_SRC vimrc
   set ts=2 sw=2 expandtab
   set nu
+** Used Cli Tools
+*** Netcat
+[[https://linuxize.com/post/netcat-nc-command-with-examples/][nc examples]]
+- Scan for open ports
+nc -z -v <service name> <port>
 
 #+END_SRC
 **  TODO:
- [ ] Read [[https://kubernetes.io/docs/tasks/administer-cluster/declare-network-policy/][Declare Network Polilcy]]
+ [X] Read [[https://kubernetes.io/docs/tasks/administer-cluster/declare-network-policy/][Declare Network Polilcy]]
 
 * Exercise notes
 ** Game of Pods
@@ -583,3 +734,7 @@ k create service nodeport drupal-service --node-port=30095 --tcp=80 --dry-run=tr
 #+END_SRC
 
 - [X] TODO: Read about[[https://kubernetes.io/docs/concepts/workloads/pods/init-containers/][ Init Containers]]
+
+** Test Mock 2
+- [ ] Find out if the servce can be created vie cli
+- [-] Repeat Taints and Toleratons
