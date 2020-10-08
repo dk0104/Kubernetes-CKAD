@@ -155,6 +155,8 @@ get pod,pods, pv ,services,node,nodes,events,
 |                  |                                          |
 
 * Core Concepts
+** Node
+- Apply lable on the nodes
 ** [[Deployment]]
 Orig link: [[https://kubernetes.io/docs/concepts/services-networking/service/][Service]]
 
@@ -485,7 +487,17 @@ Taints and tolerations work together to ensure that pods are not scheduled onto 
 ** Resource Request
 ** Node Selectors
 ** Node Affinity
-** Pods
+Operators :
+|              |   |
+|--------------+---|
+| In           |   |
+| NotIn        |   |
+| Exists       |   |
+| DoesNotExist |   |
+| Gt           |   |
+| Lt           |   |
+
+** Pods+
 
 * Observability
 ** Monitoring and Debug
