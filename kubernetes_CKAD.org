@@ -16,8 +16,6 @@
   | kubectl run nginx --image=nginx --restart=OnFailure                         | create [[Job]]        |
   | kubectl run nginx --image=nginx  --restart=OnFailure --schedule="* * * * *" | create cronJob    |
   |                                                                             |                   |
-
-
 ** [[Service]]
 
 #+BEGIN_QUOTE
@@ -625,6 +623,15 @@ template:
 | kubectl rollout status <deployment name>  | Shows current deployment status |
 | kubectl rollout history <deployment name> | Shows deployment history        |
 | kubectl apply -f <depl definition file>   | Pod changed -> rollout trigger  |
+** Sidecar Design Pattern
+#+BEGIN_QUOTE
+A sidecar adds functionality to an existing application. This functionality could be saving certain files in a certain location, copying files continuously from one location to another or for instance be terminate SSL and have your “legacy” web server run unchanged.
+#+END_QUOTE
+
+#+BEGIN_SRC yaml
+
+
+#+END_SRC
 * Secvices and Networking
 ** Network Policy
 [[https://kubernetes.io/docs/concepts/services-networking/network-policies/][NetworkPolicy]]
@@ -708,20 +715,39 @@ spec:
 #+END_SRC
 
 * Tool ideas etc.
-** Bash alias entries
+** Bash alias entries and settings
+- alias entries
+
 #+BEGIN_SRC sh
 alias k='kubectl'
-alias c='k create'
-alias d='k delete'
-alias de='k describe'
-alias e='k edit'
-alias r='k run'
-alias roll='k rollout'
+alias c="k create"
+alias d="k delete"
+alias de="k describe"
+alias e="k edit"
+alias ex="k exec -it"
+alias g="k get"
+alias l="k logs -f"
+alias r="k run"
+alias roll="k rollout"
+alias kns="k config set-context --current --namespace"
+alias n="de po | grep -i namespace -m 1"
+
+export do="--dry-run=client -o yaml"
+export f="--force --grace-period=0"
 #+END_SRC
+
 start autocomplition :
 #+BEGIN_SRC shell
  complete -F __start_kubectl k
 #+END_SRC
+
+
+#inside .vimrc
+#+BEGIN_SRC
+set ts=2 sw=2 expandtab
+set nu
+#+END_SRC
+
 ** Vimrc settings
 #+BEGIN_SRC vimrc
   set ts=2 sw=2 expandtab
@@ -730,11 +756,25 @@ start autocomplition :
 *** Netcat
 [[https://linuxize.com/post/netcat-nc-command-with-examples/][nc examples]]
 - Scan for open ports
+  #+BEGIN_SRC shell
 nc -z -v <service name> <port>
+  #+END_SRC
+*** Grep
+- Schow more lines after hit
+  #+BEGIN_SRC shell
+grep A<number of lines> <serarch string>
+  #+END_SRC
 
 #+END_SRC
 **  TODO:
- [X] Read [[https://kubernetes.io/docs/tasks/administer-cluster/declare-network-policy/][Declare Network Polilcy]]
+- [X] Read [[https://kubernetes.io/docs/tasks/administer-cluster/declare-network-policy/][Declare Network Polilcy]]
+- [ ] Find out if the servce can be created vie cli
+- [X] Repeat Taints and Toleratons
+- [ ] Pactice [[https://medium.com/bb-tutorials-and-thoughts/practice-enough-with-these-questions-for-the-ckad-exam-2f42d1228552][150 Questions]]:
+- [ ] Understand [[https://blog.nillsf.com/index.php/2019/07/28/ckad-series-part-4-multi-container-pods/][concept]] of sidecar,[[https://bjammal.github.io/2019-08-25-ambasador-pattern/][ambassador]] , Adapter based on that you could alone get 15 marks.
+- [ ] Practice game of pods
+- [ ] Read Nills [[https://blog.nillsf.com/index.php/category/ckad/][SKAD series]]
+- [ ] Read [[https://training.linuxfoundation.org/wp-content/uploads/2019/05/CKA-CKAD-Candidate-Handbook-v1.2-.pdf][Candidate Handbook]]
 
 * Exercise notes
 ** Game of Pods
@@ -747,6 +787,3 @@ k create service nodeport drupal-service --node-port=30095 --tcp=80 --dry-run=tr
 
 - [X] TODO: Read about[[https://kubernetes.io/docs/concepts/workloads/pods/init-containers/][ Init Containers]]
 
-** Test Mock 2
-- [ ] Find out if the servce can be created vie cli
-- [-] Repeat Taints and Toleratons
