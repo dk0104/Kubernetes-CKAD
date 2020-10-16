@@ -1,0 +1,75 @@
+#+TITLE: Minikube
+* Setup WSL2 & Minikube
+[[https://www.jamessturtevant.com/posts/Running-Kubernetes-Minikube-on-Windows-10-with-WSL/][Blog form James Sturtevant]]
+
+Setup  ~/.kube/config like this
+#+BEGIN_SRC shell
+kubectl config view
+#+END_SRC
+
+#+RESULTS:
+| apiVersion:                 | v1                                                     |                |
+| clusters:                   |                                                        |                |
+| -                           | cluster:                                               |                |
+| certificate-authority-data: | DATA+OMITTED                                           |                |
+| server:                     | https://kubernetes.docker.internal:6443                |                |
+| name:                       | docker-desktop                                         |                |
+| -                           | cluster:                                               |                |
+| certificate-authority:      | /mnt/c/Users/dk/.minikube/ca.crt                       |                |
+| server:                     | https://127.0.0.1:32768                                |                |
+| name:                       | minikube                                               |                |
+| contexts:                   |                                                        |                |
+| -                           | context:                                               |                |
+| cluster:                    | docker-desktop                                         |                |
+| user:                       | docker-desktop                                         |                |
+| name:                       | docker-desktop                                         |                |
+| -                           | context:                                               |                |
+| cluster:                    | minikube                                               |                |
+| user:                       | minikube                                               |                |
+| name:                       | minikube                                               |                |
+| current-context:            | minikube                                               |                |
+| kind:                       | Config                                                 |                |
+| preferences:                | {}                                                     |                |
+| users:                      |                                                        |                |
+| -                           | name:                                                  | docker-desktop |
+| user:                       |                                                        |                |
+| client-certificate-data:    | REDACTED                                               |                |
+| client-key-data:            | REDACTED                                               |                |
+| -                           | name:                                                  | minikube       |
+| user:                       |                                                        |                |
+| client-certificate:         | /mnt/c/Users/dk/.minikube/profiles/minikube/client.crt |                |
+| client-key:                 | /mnt/c/Users/dk/.minikube/profiles/minikube/client.key |                |
+
+
+#+BEGIN_SRC shell
+kubectl config use-context minikube
+#+END_SRC
+
+And its seems to work
+#+BEGIN_SRC shell
+kubectl get all -A
+#+END_SRC
+
+#+RESULTS:
+| NAMESPACE   | NAME                                 | READY     | STATUS     |    RESTARTS | AGE                    |           |                        |          |     |
+| default     | pod/test                             | 1/1       | Running    |           0 | 41m                    |           |                        |          |     |
+| kube-system | pod/coredns-f9fd979d6-rc7bv          | 1/1       | Running    |           0 | 92m                    |           |                        |          |     |
+| kube-system | pod/etcd-minikube                    | 1/1       | Running    |           0 | 92m                    |           |                        |          |     |
+| kube-system | pod/kube-apiserver-minikube          | 1/1       | Running    |           0 | 92m                    |           |                        |          |     |
+| kube-system | pod/kube-controller-manager-minikube | 1/1       | Running    |           0 | 92m                    |           |                        |          |     |
+| kube-system | pod/kube-proxy-zkfzr                 | 1/1       | Running    |           0 | 92m                    |           |                        |          |     |
+| kube-system | pod/kube-scheduler-minikube          | 1/1       | Running    |           0 | 92m                    |           |                        |          |     |
+| kube-system | pod/storage-provisioner              | 1/1       | Running    |           0 | 92m                    |           |                        |          |     |
+|             |                                      |           |            |             |                        |           |                        |          |     |
+| NAMESPACE   | NAME                                 | TYPE      | CLUSTER-IP | EXTERNAL-IP | PORT(S)                | AGE       |                        |          |     |
+| default     | service/kubernetes                   | ClusterIP | 10.96.0.1  |      <none> | 443/TCP                | 92m       |                        |          |     |
+| kube-system | service/kube-dns                     | ClusterIP | 10.96.0.10 |      <none> | 53/UDP,53/TCP,9153/TCP | 92m       |                        |          |     |
+|             |                                      |           |            |             |                        |           |                        |          |     |
+| NAMESPACE   | NAME                                 | DESIRED   | CURRENT    |       READY | UP-TO-DATE             | AVAILABLE | NODE                   | SELECTOR | AGE |
+| kube-system | daemonset.apps/kube-proxy            | 1         | 1          |           1 | 1                      | 1         | kubernetes.io/os=linux | 92m      |     |
+|             |                                      |           |            |             |                        |           |                        |          |     |
+| NAMESPACE   | NAME                                 | READY     | UP-TO-DATE |   AVAILABLE | AGE                    |           |                        |          |     |
+| kube-system | deployment.apps/coredns              | 1/1       | 1          |           1 | 92m                    |           |                        |          |     |
+|             |                                      |           |            |             |                        |           |                        |          |     |
+| NAMESPACE   | NAME                                 | DESIRED   | CURRENT    |       READY | AGE                    |           |                        |          |     |
+| kube-system | replicaset.apps/coredns-f9fd979d6    | 1         | 1          |           1 | 92m                    |           |                        |          |     |
