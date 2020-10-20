@@ -61,15 +61,16 @@ Both the above commands have their own challenges. While one of it cannot accept
 
 ** run
 
-| command                                                                     | description            |
-|-----------------------------------------------------------------------------+------------------------|
-| kubectl run nginx --image=nginx                                             | create [[Deployment]]      |
-| kubectl run nginx --image=nginx --restart=Never                             | create [[Pod]]             |
-| kubectl run nginx --image=nginx --restart=OnFailure                         |                        |
-| kubectl run nginx --image=nginx  --restart=OnFailure --schedule="* * * * *" | create cronJob         |
-| kubectl run <name> --image=<image> --restart=Never -it --rm --echo "tex"    | create and send output |
-| kubectl run <name> --image=<image> --labes=<label key>=<label val>          | create pod with labels |
-|                                                                             |                        |
+| command                                                                 | description                       |
+|-------------------------------------------------------------------------+-----------------------------------|
+| k run nginx --image=nginx                                               | create [[Deployment]]                 |
+| k run nginx --image=nginx --restart=Never                               | create [[Pod]]                        |
+| k run nginx --image=nginx --restart=OnFailure                           |                                   |
+| k run nginx --image=nginx  --restart=OnFailure --schedule="* * * * *"   | create cronJob                    |
+| k run <name> --image=<image> --restart=Never -it --rm --echo "tex"      | create and send output            |
+| k run <name> --image=<image> --labes=<label key>=<label val>            | create pod with labels            |
+| k run <name> --image=<image> --restart=Never -- /bin/sh -c "sleep 3600" | create pod with sleep cmd command |
+|                                                                         |                                   |
 
 ** exec
 
@@ -80,6 +81,7 @@ Both the above commands have their own challenges. While one of it cannot accept
 |                         |                                         |
 
 ** create
+[[https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#create][create doc link]]
 
 | Description        | Command                                           |
 |--------------------+---------------------------------------------------|
@@ -89,6 +91,27 @@ Both the above commands have their own challenges. While one of it cannot accept
 |                    | --from-literal=password='S!B\*d$zDsb='            |
 | Create secret file | kubectl create secret genereic --from-file=<path> |
 |                    |                                                   |
+
+#+BEGIN_SRC shell
+kubectl create <type>
+#+END_SRC
+| Type                | Description                                |
+|---------------------+--------------------------------------------|
+| clusterrole         | Cluster Role                               |
+| clusterrollebinding | Cluster role binding for part. clusterrole |
+| configmap           | Config maps                                |
+| conjob              | cronjob ]                                  |
+| deployment          | Deployment                                 |
+| job                 | Create Job                                 |
+| mamspace            |                                            |
+| poddisruptionbudget | pod distruption budget                     |
+| priorityclass       |                                            |
+| quota               |                                            |
+| role                | role with specified name.                  |
+| rolebinding         | RoleBinding                                |
+| secret              | secret                                     |
+| service             |                                            |
+| serviceaccount      | Service account with specfied naem         |
 
 *** Generators
 | kubectl create <genereator> --dry-run=client -o yaml |                                                                   |
@@ -117,17 +140,43 @@ Both the above commands have their own challenges. While one of it cannot accept
 
 ** get
 
-get pod,pods, pv ,services,node,nodes,events,
-| Description                            | Command                                                           |
-|----------------------------------------+-------------------------------------------------------------------|
-| Show secrets                           | kubectl get secrets                                               |
-| Check the image version                | kubectl get pod <name> -o jsonpath='.spec.containers[].image{"\n} |
-| list sorted                            | kubectl get pods--sort-by=.metadata.creationTimestamp             |
-| Get pods with labels                   | kubectl get pods --show-labels                                    |
-| Get pod with sertain labels            | kubectl get pods -l <label val>=<label key> --show labels         |
-| Get pods with label keys               | kubectl get pods -L env                                           |
-| Get pods with multi label key val pair | kubectl get pods -l '<label key> in <val1,val2>' --show-labels    |
-|                                        |                                                                   |
+get pod,pods, pv ,services,node,nodes,events    ,
+| Description                                                | Command                                                                                            |
+|------------------------------------------------------------+----------------------------------------------------------------------------------------------------|
+| Show secrets                                               | k get secrets                                                                                      |
+| Check the image version                                    | k get pod <name> -o jsonpath='.spec.containers[].image{"\n}                                        |
+| list sorted                                                | k get pods--sort-by=.metadata.creationTimestamp                                                    |
+| Get pods with labels                                       | k get pods --show-labels                                                                           |
+| Get pod with sertain labels                                | k get pods -l <label val>=<label key> --show labels                                                |
+| Get pods with label keys                                   | k get pods -L env                                                                                  |
+| Get pods with multi label key val pair                     | k get pods -l '<label key> in <val1,val2>' --show-labels                                           |
+| List the pod with different verbosity                      | k get po nginx --v=7                                                                               |
+| List the nginx pod with custom columns POD_NAME POD_STATUS | k get po -o=custom-columns='POD_NAME:.metadata.name, POD_STATUS:.status.containerStatuses[].state' |
+| List all pods sorted by  name                              | k get pods --sort-by=.metadata.name                                                                |
+
+*** List the nginx pod with custom columns POD_NAME POD_STATUS
+#+BEGIN_SRC shell
+kubectl get po -o=custom-columns='POD_NAME:.metadata.name, POD_STATUS:.status.containerStatuses[].state'
+#+END_SRC
+
+#+RESULTS:
+| POD_NAME     | POD_STATUS                                                                                               |              |                                 |              |                                  |
+| nginx        | map[running:map[startedAt:2020-10-20T07:29:32Z]]                                                         |              |                                 |              |                                  |
+| nginx2       | map[terminated:map[containerID:docker://db3b1fc303903f6f8d2468862cba9421b3b48317574c1fb2d89f1a294c8e9fa7 | exitCode:127 | finishedAt:2020-10-20T06:23:10Z | reason:Error | startedAt:2020-10-20T06:23:10Z]] |
+| pod-readines | map[running:map[startedAt:2020-10-20T05:49:57Z]]                                                         |              |                                 |              |                                  |
+| test         | map[running:map[startedAt:2020-10-20T05:50:00Z]]                                                         |              |                                 |              |                                  |
+
+*** Get pods with labels
+#+BEGIN_SRC shell
+kubectl get pods --show-labels
+#+END_SRC
+
+#+RESULTS:
+| NAME         | READY | STATUS  | RESTARTS | AGE   | LABELS           |
+| nginx        | 1/1   | Running |        0 | 73m   | run=nginx        |
+| nginx2       | 0/1   | Error   |        0 | 139m  | run=nginx2       |
+| pod-readines | 1/1   | Running |        1 | 3d16h | run=pod-readines |
+| test         | 1/1   | Running |        1 | 3d17h | run=test         |
 
 ** edit
 
@@ -141,9 +190,6 @@ get pod,pods, pv ,services,node,nodes,events,
 | Description             | Command                                 |
 |-------------------------+-----------------------------------------|
 | logs multiple contaiers | kubectl logs <name> -c <container name> |
-|                         |                                         |
-|                         |                                         |
-|                         |                                         |
 
 ** label
 
@@ -151,6 +197,8 @@ get pod,pods, pv ,services,node,nodes,events,
 |------------------+------------------------------------------|
 | change the label | kubectl label <name> env=uat --overwrite |
 |                  |                                          |
+
+** EXAMPLES
 
 * Core Concepts
 ** Node
@@ -741,7 +789,6 @@ start autocomplition :
  complete -F __start_kubectl k
 #+END_SRC
 
-
 #inside .vimrc
 #+BEGIN_SRC
 set ts=2 sw=2 expandtab
@@ -760,7 +807,7 @@ set nu
 nc -z -v <service name> <port>
   #+END_SRC
 *** Grep
-- Schow more lines after hit
+- S chow more lines after hit
   #+BEGIN_SRC shell
 grep A<number of lines> <serarch string>
   #+END_SRC
@@ -768,7 +815,7 @@ grep A<number of lines> <serarch string>
 #+END_SRC
 **  TODO:
 - [X] Read [[https://kubernetes.io/docs/tasks/administer-cluster/declare-network-policy/][Declare Network Polilcy]]
-- [ ] Find out if the servce can be created vie cli
+- [X] Find out if the servce can be created vie cli
 - [X] Repeat Taints and Toleratons
 - [ ] Pactice [[https://medium.com/bb-tutorials-and-thoughts/practice-enough-with-these-questions-for-the-ckad-exam-2f42d1228552][150 Questions]]:
 - [ ] Understand [[https://blog.nillsf.com/index.php/2019/07/28/ckad-series-part-4-multi-container-pods/][concept]] of sidecar,[[https://bjammal.github.io/2019-08-25-ambasador-pattern/][ambassador]] , Adapter based on that you could alone get 15 marks.
@@ -777,13 +824,353 @@ grep A<number of lines> <serarch string>
 - [ ] Read [[https://training.linuxfoundation.org/wp-content/uploads/2019/05/CKA-CKAD-Candidate-Handbook-v1.2-.pdf][Candidate Handbook]]
 
 * Exercise notes
+** Blitz 1
 ** Game of Pods
 *** Drupal cms
 Create Service file:
-
 #+BEGIN_SRC
 k create service nodeport drupal-service --node-port=30095 --tcp=80 --dry-run=true -o yaml > drupal_service.yaml
 #+END_SRC
-
 - [X] TODO: Read about[[https://kubernetes.io/docs/concepts/workloads/pods/init-containers/][ Init Containers]]
+** SCAD Simulator 1
+** [[https://medium.com/bb-tutorials-and-thoughts/practice-enough-with-these-questions-for-the-ckad-exam-2f42d1228552][130 Questins]]
+*** Multi container Pods
+**** Init multipod section
+**** 29
+#+BEGIN_SRC shell :results output
+cd ./testfiles/
+kubectl run busybox --image=busybox --dry-run=client -o yaml > mc.yaml
+cat mc.yaml
+ls
+#+END_SRC
 
+#+RESULTS:
+#+begin_example
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: busybox
+  name: busybox
+spec:
+  containers:
+  - image: busybox
+    name: busybox
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+mc.yaml
+#+end_example
+
+
+complete multipod file
+#+BEGIN_SRC yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: busybox
+  name: busybox
+spec:
+  containers:
+  - args:
+    - bin/sh
+    - -c
+    - echo Hello word;sleep 3600
+    image: busybox
+    name: busybox1
+    resources: {}
+  - args:
+    - bin/sh
+    - -c
+    - echo Hello world;sleep 3600
+    image: busybox
+    name: busybox2
+  - args:
+    - bin/sh
+    - -c
+    - echo this is third container ;sleep 3600
+    image: busybox
+    name: busybox3
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+#+END_SRC
+
+#+BEGIN_SRC shell :results output
+kubectl create -f  mc.yaml
+#+END_SRC
+
+#+RESULTS:
+: pod/busybox created
+
+#+BEGIN_SRC shell :results output
+kubectl describe po busybox
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+Name:         busybox
+Namespace:    default
+Priority:     0
+Node:         minikube/172.17.0.2
+Start Time:   Tue, 20 Oct 2020 11:41:35 +0200
+Labels:       run=busybox
+Annotations:  <none>
+Status:       Running
+IP:           172.18.0.6
+IPs:
+  IP:  172.18.0.6
+Containers:
+  busybox1:
+    Container ID:  docker://a8a84bb695b64a75103ee7f896d9333abed7492a941627fd246c15bcbbfedc6f
+    Image:         busybox
+    Image ID:      docker-pullable://busybox@sha256:a9286defaba7b3a519d585ba0e37d0b2cbee74ebfe590960b0b1d6a5e97d1e1d
+    Port:          <none>
+    Host Port:     <none>
+    Args:
+      bin/sh
+      -c
+      echo Hello word;sleep 3600
+    State:          Running
+      Started:      Tue, 20 Oct 2020 11:41:38 +0200
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-qpgrj (ro)
+  busybox2:
+    Container ID:  docker://7bf844d973e73bdeee3cf907fabb98e0f825457d328d8c9d7fa1da38e365f40c
+    Image:         busybox
+    Image ID:      docker-pullable://busybox@sha256:a9286defaba7b3a519d585ba0e37d0b2cbee74ebfe590960b0b1d6a5e97d1e1d
+    Port:          <none>
+    Host Port:     <none>
+    Args:
+      bin/sh
+      -c
+      echo Hello world;sleep 3600
+    State:          Running
+      Started:      Tue, 20 Oct 2020 11:41:40 +0200
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-qpgrj (ro)
+  busybox3:
+    Container ID:  docker://5b7c2909ee0d1cae50aa5d03a853032b00d0fd23558ec156f13076ef33e62b1c
+    Image:         busybox
+    Image ID:      docker-pullable://busybox@sha256:a9286defaba7b3a519d585ba0e37d0b2cbee74ebfe590960b0b1d6a5e97d1e1d
+    Port:          <none>
+    Host Port:     <none>
+    Args:
+      bin/sh
+      -c
+      echo this is third container ;sleep 3600
+    State:          Running
+      Started:      Tue, 20 Oct 2020 11:41:42 +0200
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-qpgrj (ro)
+Conditions:
+  Type              Status
+  Initialized       True
+  Ready             True
+  ContainersReady   True
+  PodScheduled      True
+Volumes:
+  default-token-qpgrj:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  default-token-qpgrj
+    Optional:    false
+QoS Class:       BestEffort
+Node-Selectors:  <none>
+Tolerations:     node.kubernetes.io/not-ready:NoExecute for 300s
+                 node.kubernetes.io/unreachable:NoExecute for 300s
+Events:
+  Type    Reason     Age        From               Message
+  ----    ------     ----       ----               -------
+  Normal  Scheduled  <unknown>                     Successfully assigned default/busybox to minikube
+  Normal  Pulling    47s        kubelet, minikube  Pulling image "busybox"
+  Normal  Pulled     45s        kubelet, minikube  Successfully pulled image "busybox" in 2.055967s
+  Normal  Created    45s        kubelet, minikube  Created container busybox1
+  Normal  Started    45s        kubelet, minikube  Started container busybox1
+  Normal  Pulling    45s        kubelet, minikube  Pulling image "busybox"
+  Normal  Pulled     43s        kubelet, minikube  Successfully pulled image "busybox" in 1.9051111s
+  Normal  Created    43s        kubelet, minikube  Created container busybox2
+  Normal  Started    43s        kubelet, minikube  Started container busybox2
+  Normal  Pulling    43s        kubelet, minikube  Pulling image "busybox"
+  Normal  Pulled     41s        kubelet, minikube  Successfully pulled image "busybox" in 2.1070341s
+  Normal  Created    41s        kubelet, minikube  Created container busybox3
+  Normal  Started    41s        kubelet, minikube  Started container busybox3
+#+end_example
+
+**** 30
+#+BEGIN_SRC shell
+kubectl logs busybox -c busybox1
+#+END_SRC
+
+#+RESULTS:
+: Hello word
+
+#+BEGIN_SRC shell
+kubectl logs busybox -c busybox3
+#+END_SRC
+
+#+RESULTS:
+: this is third container
+
+**** 32 Run the command in the third container
+ #+BEGIN_SRC shell :results output
+ kubectl exec busybox -c busybox3  -- ls
+ #+END_SRC
+
+ #+RESULTS:
+ #+begin_example
+ bin
+ dev
+ etc
+ home
+ proc
+ root
+ sys
+ tmp
+ usr
+ var
+ #+end_example
+**** 33 Show metrics of the containers
+#+BEGIN_SRC shell :results output
+kubectl top pod busybox --containers
+#+END_SRC
+
+**** 34 Create pod with sidecar container
+#+BEGIN_SRC shell :results output
+cd testfiles
+kubectl run busybox_sidecar --image=busybox  --dry-run=client -o yaml -- bin/sh -c "while true;do echo 'Hi I am from Main Container' >> /var/log/index.html;sleep 5;done"> busybox_sidecar.yml
+cat busybox_sidecar.yml
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: busybox_sidecar
+  name: busybox_sidecar
+spec:
+  containers:
+  - args:
+    - bin/sh
+    - -c
+    - while true;do echo 'Hi I am from Main Container' >> /var/log/index.html;sleep
+      5;done
+    image: busybox
+    name: busybox_sidecar
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+#+end_example
+
+- [ ] ToDo How to impl. Sidecar and Embassador pattern exactly
+
+#+BEGIN_SRC shell :results output
+cd testfiles
+kubectl create -f busybox_sidecar.yml
+#+END_SRC
+
+#+RESULTS:
+: pod/busybox-sidecar created
+
+ #+BEGIN_SRC shell :results output
+kubectl describe po busybox-sidecar
+ #+END_SRC
+
+ #+RESULTS:
+ #+begin_example
+ Name:         busybox-sidecar
+ Namespace:    default
+ Priority:     0
+ Node:         minikube/172.17.0.2
+ Start Time:   Tue, 20 Oct 2020 14:25:52 +0200
+ Labels:       run=busybox-sidecar
+ Annotations:  <none>
+ Status:       Running
+ IP:           172.18.0.8
+ IPs:
+   IP:  172.18.0.8
+ Containers:
+   sidecar-container:
+     Container ID:   docker://34ee9fd9e1a8c216fd585581e86731050378dd3f5471e791a2bcba62a0ace328
+     Image:          nginx
+     Image ID:       docker-pullable://nginx@sha256:ed7f815851b5299f616220a63edac69a4cc200e7f536a56e421988da82e44ed8
+     Port:           80/TCP
+     Host Port:      0/TCP
+     State:          Running
+       Started:      Tue, 20 Oct 2020 14:25:55 +0200
+     Ready:          True
+     Restart Count:  0
+     Environment:    <none>
+     Mounts:
+       /usr/share/nginx/html from var-logs (rw)
+       /var/run/secrets/kubernetes.io/serviceaccount from default-token-qpgrj (ro)
+   main-container:
+     Container ID:  docker://163038776eb6f9ee5591aa4ec5a4d0b56397366c5dad505b57a746a51202029a
+     Image:         busybox
+     Image ID:      docker-pullable://busybox@sha256:a9286defaba7b3a519d585ba0e37d0b2cbee74ebfe590960b0b1d6a5e97d1e1d
+     Port:          <none>
+     Host Port:     <none>
+     Args:
+       bin/sh
+       -c
+       while true; do
+         echo 'Hi I am from Main Container' >> /var/log/index.html;
+         sleep 5;
+       done
+
+     State:          Running
+       Started:      Tue, 20 Oct 2020 14:25:57 +0200
+     Ready:          True
+     Restart Count:  0
+     Environment:    <none>
+     Mounts:
+       /var/logs from var-logs (rw)
+       /var/run/secrets/kubernetes.io/serviceaccount from default-token-qpgrj (ro)
+ Conditions:
+   Type              Status
+   Initialized       True
+   Ready             True
+   ContainersReady   True
+   PodScheduled      True
+ Volumes:
+   var-logs:
+     Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+     Medium:
+     SizeLimit:  <unset>
+   default-token-qpgrj:
+     Type:        Secret (a volume populated by a Secret)
+     SecretName:  default-token-qpgrj
+     Optional:    false
+ QoS Class:       BestEffort
+ Node-Selectors:  <none>
+ Tolerations:     node.kubernetes.io/not-ready:NoExecute for 300s
+                  node.kubernetes.io/unreachable:NoExecute for 300s
+ Events:
+   Type    Reason     Age        From               Message
+   ----    ------     ----       ----               -------
+   Normal  Scheduled  <unknown>                     Successfully assigned default/busybox-sidecar to minikube
+   Normal  Pulling    2m8s       kubelet, minikube  Pulling image "nginx"
+   Normal  Pulled     2m5s       kubelet, minikube  Successfully pulled image "nginx" in 2.3070851s
+   Normal  Created    2m5s       kubelet, minikube  Created container sidecar-container
+   Normal  Started    2m5s       kubelet, minikube  Started container sidecar-container
+   Normal  Pulling    2m5s       kubelet, minikube  Pulling image "busybox"
+   Normal  Pulled     2m3s       kubelet, minikube  Successfully pulled image "busybox" in 2.3570642s
+   Normal  Created    2m3s       kubelet, minikube  Created container main-container
+   Normal  Started    2m3s       kubelet, minikube  Started container main-container
+ #+end_example
