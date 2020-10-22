@@ -1,4 +1,5 @@
 #+TITLE: Kubernetes CKAD
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/setup/theme-readtheorg.setup
 * Certification nontes
 - use --dry-run=client
 - use -o yaml to create resource definition file
@@ -11,9 +12,8 @@
 - some useful imperative commands
   | command                                                                     | description       |
   |-----------------------------------------------------------------------------+-------------------|
-  | kubectl run nginx --image=nginx                                             | create [[Deployment]] |
-  | kubectl run nginx --image=nginx --restart=Never                             | create [[Pod]]        |
-  | kubectl run nginx --image=nginx --restart=OnFailure                         | create [[Job]]        |
+  | kubectl run nginx --image=nginx --restart=Never                             | create Pod        |
+  | kubectl run nginx --image=nginx --restart=OnFailure                         | create Job        |
   | kubectl run nginx --image=nginx  --restart=OnFailure --schedule="* * * * *" | create cronJob    |
   |                                                                             |                   |
 ** [[Service]]
@@ -63,8 +63,7 @@ Both the above commands have their own challenges. While one of it cannot accept
 
 | command                                                                 | description                       |
 |-------------------------------------------------------------------------+-----------------------------------|
-| k run nginx --image=nginx                                               | create [[Deployment]]                 |
-| k run nginx --image=nginx --restart=Never                               | create [[Pod]]                        |
+| k run nginx --image=nginx --restart=Never                               | create Pod                        |
 | k run nginx --image=nginx --restart=OnFailure                           |                                   |
 | k run nginx --image=nginx  --restart=OnFailure --schedule="* * * * *"   | create cronJob                    |
 | k run <name> --image=<image> --restart=Never -it --rm --echo "tex"      | create and send output            |
@@ -238,7 +237,7 @@ spec:
         - containerPort: 80
 #+END_SRC
 
-** [[Pod]]
+** Pod
 - Create imperative pod
   #+BEGIN_SRC
   kubectl run <name> --image=<image>
@@ -1174,3 +1173,90 @@ kubectl describe po busybox-sidecar
    Normal  Created    2m3s       kubelet, minikube  Created container main-container
    Normal  Started    2m3s       kubelet, minikube  Started container main-container
  #+end_example
+
+**** 35 Exec containers
+- Exec into main container
+#+BEGIN_SRC shell :results outputdgydrfffrtuuuut
+kubectl exec -it busybox-sidecar -c main-container -- sh
+#+END_SRC
+
+
+*** Pod Design
+**** 36 Pods with label information
+ #+BEGIN_SRC shell :result output
+kubectl get pods --show-labels
+ #+END_SRC
+
+ #+RESULTS:
+ | NAME            | READY | STATUS  | RESTARTS | AGE   | LABELS              |
+ | busybox         | 3/3   | Running |       15 | 5h32m | run=busybox         |
+ | busybox-sidecar | 2/2   | Running |        0 | 168m  | run=busybox-sidecar |
+ | counter         | 3/3   | Running |        0 | 174m  | <none>              |
+ | nginx           | 1/1   | Running |        0 | 7h44m | run=nginx           |
+ | nginx-dev1      | 1/1   | Running |        0 | 8m6s  | env=dev             |
+ | nginx-dev2      | 1/1   | Running |        0 | 8m6s  | env=dev             |
+ | nginx-dev3      | 1/1   | Running |        0 | 8m6s  | env=dev             |
+ | nginx2          | 0/1   | Error   |        0 | 8h    | run=nginx2          |
+ | pod-readines    | 1/1   | Running |        1 | 3d23h | run=pod-readines    |
+ | test            | 1/1   | Running |        1 | 4d    | run=test            |
+
+**** 37 Create nginx pods
+- create pods
+ #+BEGIN_SRC shell :results output
+kubectl run nginx-dev1 --image=nginx --labels=env=dev
+kubectl run nginx-dev2 --image=nginx --labels=env=dev
+kubectl run nginx-dev3 --image=nginx --labels=env=dev
+ #+END_SRC
+
+ #+RESULTS:
+ : pod/nginx-dev1 created
+ : pod/nginx-dev2 created
+ : pod/nginx-dev3 created
+
+- verify pod labels
+  #+BEGIN_SRC shell :results output
+kubectl get pods --show-labels
+  #+END_SRC
+
+  #+RESULTS:
+  #+begin_example
+  NAME              READY   STATUS    RESTARTS   AGE     LABELS
+  busybox           3/3     Running   15         5h26m   run=busybox
+  busybox-sidecar   2/2     Running   0          162m    run=busybox-sidecar
+  counter           3/3     Running   0          168m    <none>
+  nginx             1/1     Running   0          7h38m   run=nginx
+  nginx-dev1        1/1     Running   0          115s    env=dev
+  nginx-dev2        1/1     Running   0          115s    env=dev
+  nginx-dev3        1/1     Running   0          115s    env=dev
+  nginx2            0/1     Error     0          8h      run=nginx2
+  pod-readines      1/1     Running   1          3d22h   run=pod-readines
+  test              1/1     Running   1          4d      run=test
+  #+end_example
+
+- filter labels
+   #+BEGIN_SRC shell :results output
+kubectl get pods -l env=dev
+   #+END_SRC
+
+   #+RESULTS:
+   : NAME         READY   STATUS    RESTARTS   AGE
+   : nginx-dev1   1/1     Running   0          6m19s
+   : nginx-dev2   1/1     Running   0          6m19s
+   : nginx-dev3   1/1     Running   0          6m19s
+
+- change label
+  #+BEGIN_SRC shell :results output
+kubectl label pod nginx-dev3 env=uat --overwrite
+kubectl get pods --show-labels
+  #+END_SRC
+
+**** 65 Get yaml of rs and po from deployment
+#+BEGIN_SRC shell :result output
+kubectl get rs -l <label> -o yaml
+kubectl get po -l <label> -o yaml
+#+END_SRC
+
+**** 68 Update Image
+#+BEGIN_SRC shell :results output
+kubectl set image deploy <name> <image>=<image:new version>
+#+END_SRC
