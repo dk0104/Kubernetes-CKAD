@@ -1,19 +1,28 @@
 #+TITLE: Kubernetes CKAD
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/setup/theme-readtheorg.setup
 * Certification nontes
+** Setup alias etc.
+[[https://kubernetes.io/docs/reference/kubectl/cheatsheet/][cheat sheet]]
+#+begin_src  shell
+alias k = kubectl
+complete -F __start_kubectl k
+#+end_src
+
 - use --dry-run=client
 - use -o yaml to create resource definition file
 - read  [[https://kubernetes.io/docs/reference/kubectl/conventions/][conventions]]
 - use explain commands
   #+BEGIN_SRC
   kubectl explain <opject> --recursive
+  // explain extendet
+
   #+END_SRC
 -  Avoid running "kubectl edit pod <pod name>" use "kubectl get pod <name> -o yaml > <name>.yaml" instead
 - some useful imperative commands
   | command                                                                     | description       |
   |-----------------------------------------------------------------------------+-------------------|
-  | kubectl run nginx --image=nginx                                             | create [[Deployment]] |
-  | kubectl run nginx --image=nginx --restart=Never                             | create [[Pod]]        |
-  | kubectl run nginx --image=nginx --restart=OnFailure                         | create [[Job]]        |
+  | kubectl run nginx --image=nginx --restart=Never                             | create Pod        |
+  | kubectl run nginx --image=nginx --restart=OnFailure                         | create Job        |
   | kubectl run nginx --image=nginx  --restart=OnFailure --schedule="* * * * *" | create cronJob    |
   |                                                                             |                   |
 ** [[Service]]
@@ -63,8 +72,7 @@ Both the above commands have their own challenges. While one of it cannot accept
 
 | command                                                                 | description                       |
 |-------------------------------------------------------------------------+-----------------------------------|
-| k run nginx --image=nginx                                               | create [[Deployment]]                 |
-| k run nginx --image=nginx --restart=Never                               | create [[Pod]]                        |
+| k run nginx --image=nginx --restart=Never                               | create Pod                        |
 | k run nginx --image=nginx --restart=OnFailure                           |                                   |
 | k run nginx --image=nginx  --restart=OnFailure --schedule="* * * * *"   | create cronJob                    |
 | k run <name> --image=<image> --restart=Never -it --rm --echo "tex"      | create and send output            |
@@ -133,6 +141,14 @@ kubectl create <type>
 |                                                      |                                                                   |
 
 ** describe
+*** get labels
+#+begin_src  shell
+
+k describe  <node> | less
+/Labels
+
+#+end_src
+
 
 | Description | Command |
 |-------------+---------|
@@ -198,7 +214,38 @@ kubectl get pods --show-labels
 | change the label | kubectl label <name> env=uat --overwrite |
 |                  |                                          |
 
+** Patching resources
+#+begin_src shell
+# Partially update a node
+kubectl patch node k8s-node-1 -p '{"spec":{"unschedulable":true}}'
+
+# Update a container's image; spec.containers[*].name is required because it's a merge key
+kubectl patch pod valid-pod -p '{"spec":{"containers":[{"name":"kubernetes-serve-hostname","image":"new image"}]}}'
+
+# Update a container's image using a json patch with positional arrays
+kubectl patch pod valid-pod --type='json' -p='[{"op": "replace", "path": "/spec/containers/0/image", "value":"new image"}]'
+
+# Disable a deployment livenessProbe using a json patch with positional arrays
+kubectl patch deployment valid-deployment  --type json   -p='[{"op": "remove", "path": "/spec/template/spec/containers/0/livenessProbe"}]'
+
+# Add a new element to a positional array
+kubectl patch sa default --type='json' -p='[{"op": "add", "path": "/secrets/1", "value": {"name": "whatever" } }]
+
+#+end_src
+
 ** EXAMPLES
+
+* how tos
+** List and search
+#+begin_src shell
+k get nodes -o json | jq '.items[].spec.taints'
+
+#+end_src
+** Export pod to yaml
+#+begin_src shell
+k get pod <name> -o yaml > filename
+#+end_src
+
 
 * Core Concepts
 ** Node
@@ -238,7 +285,7 @@ spec:
         - containerPort: 80
 #+END_SRC
 
-** [[Pod]]
+** Pod
 - Create imperative pod
   #+BEGIN_SRC
   kubectl run <name> --image=<image>
@@ -347,6 +394,20 @@ apiVersion: v1
     restartPolicy: OnFailure
 
   #+END_SRC
+
+ #+begin_src yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ubuntu-sleeper-2
+spec:
+  containers:
+  - name: ubuntu
+    image: ubuntu
+    command:
+      - "sleep"
+      - "5000"
+ #+end_src
 
 ** Config Maps
 Doc link: [[https://kubernetes.io/docs/concepts/configuration/configmap/][ConfigMaps]]
@@ -761,6 +822,14 @@ spec:
       - {key: environment, operator: In, values: [dev]}
 
 #+END_SRC
+* Additional themes
+** Authorization
+*** Notes
+- Need to structure access between different users and kubectl
+  Node Authorizer user -> cube api -> cubelet
+
+*** RBAC Role Besed Access Control
+
 
 * Tool ideas etc.
 ** Bash alias entries and settings
@@ -822,7 +891,57 @@ grep A<number of lines> <serarch string>
 - [ ] Practice game of pods
 - [ ] Read Nills [[https://blog.nillsf.com/index.php/category/ckad/][SKAD series]]
 - [ ] Read [[https://training.linuxfoundation.org/wp-content/uploads/2019/05/CKA-CKAD-Candidate-Handbook-v1.2-.pdf][Candidate Handbook]]
+- [ ] Practice grep syntax
 
+
+
+* Test extensions
+** Docker
+- list imgages
+  #+begin_src shell
+  docker images
+  #+end_src
+- build images
+  #+begin_src shell
+  docker build -t webapp-color
+  #+end_src
+- run image
+  #+begin_src shell
+  docker run -p <hostport>:<container port> <image>
+  #+end_src
+** Kubeconfig file
+- locaton
+  Usally loacated at ~/.kube/config
+  or see KUBECONFIG environment variable
+- params
+  #+begin_src shell
+  kubectl config view
+  #+end_src
+- change user context
+  #+begin_src shell
+ #To use that context, run the command:
+ kubectl config --kubeconfig=/root/my-kube-config use-context research
+ # To know the current context, run the command:
+ kubectl config --kubeconfig=/root/my-kube-config current-context
+  #+end_src
+*** Usefull config commands
+#+begin_src shell
+#show the full contents of your kubeconfig file
+kubectl config view
+
+#show the value of the current-context line of your kubeconfig file
+kubectl config current-context
+
+#show all of the Users currently defined in your kubeconfig file
+kubectl config get-users
+
+#show all of the Clusters currently defined in your kubeconfig file
+kubectl config get-clusters
+
+#show all of the Contexts currently defined in your kubeconfig file
+kubectl config get-contexts
+
+#+end_src
 * Exercise notes
 ** Blitz 1
 ** Game of Pods
@@ -1174,3 +1293,97 @@ kubectl describe po busybox-sidecar
    Normal  Created    2m3s       kubelet, minikube  Created container main-container
    Normal  Started    2m3s       kubelet, minikube  Started container main-container
  #+end_example
+
+**** 35 Exec containers
+- Exec into main container
+#+BEGIN_SRC shell :results outputdgydrfffrtuuuut
+kubectl exec -it busybox-sidecar -c main-container -- sh
+#+END_SRC
+
+
+*** Pod Design
+**** 36 Pods with label information
+ #+BEGIN_SRC shell :result output
+kubectl get pods --show-labels
+ #+END_SRC
+
+ #+RESULTS:
+ | NAME            | READY | STATUS  | RESTARTS | AGE   | LABELS              |
+ | busybox         | 3/3   | Running |       15 | 5h32m | run=busybox         |
+ | busybox-sidecar | 2/2   | Running |        0 | 168m  | run=busybox-sidecar |
+ | counter         | 3/3   | Running |        0 | 174m  | <none>              |
+ | nginx           | 1/1   | Running |        0 | 7h44m | run=nginx           |
+ | nginx-dev1      | 1/1   | Running |        0 | 8m6s  | env=dev             |
+ | nginx-dev2      | 1/1   | Running |        0 | 8m6s  | env=dev             |
+ | nginx-dev3      | 1/1   | Running |        0 | 8m6s  | env=dev             |
+ | nginx2          | 0/1   | Error   |        0 | 8h    | run=nginx2          |
+ | pod-readines    | 1/1   | Running |        1 | 3d23h | run=pod-readines    |
+ | test            | 1/1   | Running |        1 | 4d    | run=test            |
+
+**** 37 Create nginx pods
+- create pods
+ #+BEGIN_SRC shell :results output
+kubectl run nginx-dev1 --image=nginx --labels=env=dev
+kubectl run nginx-dev2 --image=nginx --labels=env=dev
+kubectl run nginx-dev3 --image=nginx --labels=env=dev
+ #+END_SRC
+
+ #+RESULTS:
+ : pod/nginx-dev1 created
+ : pod/nginx-dev2 created
+ : pod/nginx-dev3 created
+
+- verify pod labels
+  #+BEGIN_SRC shell :results output
+kubectl get pods --show-labels
+  #+END_SRC
+
+  #+RESULTS:
+  #+begin_example
+  NAME              READY   STATUS    RESTARTS   AGE     LABELS
+  busybox           3/3     Running   15         5h26m   run=busybox
+  busybox-sidecar   2/2     Running   0          162m    run=busybox-sidecar
+  counter           3/3     Running   0          168m    <none>
+  nginx             1/1     Running   0          7h38m   run=nginx
+  nginx-dev1        1/1     Running   0          115s    env=dev
+  nginx-dev2        1/1     Running   0          115s    env=dev
+  nginx-dev3        1/1     Running   0          115s    env=dev
+  nginx2            0/1     Error     0          8h      run=nginx2
+  pod-readines      1/1     Running   1          3d22h   run=pod-readines
+  test              1/1     Running   1          4d      run=test
+  #+end_example
+
+- filter labels
+   #+BEGIN_SRC shell :results output
+kubectl get pods -l env=dev
+   #+END_SRC
+
+   #+RESULTS:
+   : NAME         READY   STATUS    RESTARTS   AGE
+   : nginx-dev1   1/1     Running   0          6m19s
+   : nginx-dev2   1/1     Running   0          6m19s
+   : nginx-dev3   1/1     Running   0          6m19s
+
+- change label
+  #+BEGIN_SRC shell :results output
+kubectl label pod nginx-dev3 env=uat --overwrite
+kubectl get pods --show-labels
+  #+END_SRC
+
+**** 65 Get yaml of rs and po from deployment
+#+BEGIN_SRC shell :result output
+kubectl get rs -l <label> -o yaml
+kubectl get po -l <label> -o yaml
+#+END_SRC
+
+**** 68 Update Image
+#+BEGIN_SRC shell :results output
+kubectl set image deploy <name> <image>=<image:new version>
+#+END_SRC
+
+#+RESULTS:
+
+** KodeKloud
+*** Configuration
+***** Cmmands and Arguments
+-
