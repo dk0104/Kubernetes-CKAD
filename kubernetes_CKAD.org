@@ -1386,4 +1386,3 @@ kubectl set image deploy <name> <image>=<image:new version>
 ** KodeKloud
 *** Configuration
 ***** Cmmands and Arguments
--
