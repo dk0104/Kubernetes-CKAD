@@ -829,6 +829,21 @@ spec:
   Node Authorizer user -> cube api -> cubelet
 
 *** RBAC Role Besed Access Control
+- apiVersion: rbac.authorization.k8s.io/v1
+- rules
+  #+begin_src shell
+  apiVersion
+  kind
+  metadata:
+    name:
+  rules:
+  - apiGroups: [""]    / Api groups are:
+    resource:  ["pods"]
+    verbs: ["list","get","create", "update", "delete"]
+  #+end_src
+
+
+
 
 
 * Tool ideas etc.
