@@ -12,19 +12,19 @@ complete -F __start_kubectl k
 - use -o yaml to create resource definition file
 - read  [[https://kubernetes.io/docs/reference/kubectl/conventions/][conventions]]
 - use explain commands
-  #+BEGIN_SRC
-  kubectl explain <opject> --recursive
-  // explain extendet
+#+BEGIN_SRC
+kubectl explain <opject> --recursive
+// explain extendet
 
-  #+END_SRC
+#+END_SRC
 -  Avoid running "kubectl edit pod <pod name>" use "kubectl get pod <name> -o yaml > <name>.yaml" instead
 - some useful imperative commands
-  | command                                                                     | description       |
-  |-----------------------------------------------------------------------------+-------------------|
-  | kubectl run nginx --image=nginx --restart=Never                             | create Pod        |
-  | kubectl run nginx --image=nginx --restart=OnFailure                         | create Job        |
-  | kubectl run nginx --image=nginx  --restart=OnFailure --schedule="* * * * *" | create cronJob    |
-  |                                                                             |                   |
+| command                                                                     | description       |
+|-----------------------------------------------------------------------------+-------------------|
+| kubectl run nginx --image=nginx --restart=Never                             | create Pod        |
+| kubectl run nginx --image=nginx --restart=OnFailure                         | create Job        |
+| kubectl run nginx --image=nginx  --restart=OnFailure --schedule="* * * * *" | create cronJob    |
+|                                                                             |                   |
 ** [[Service]]
 
 #+BEGIN_QUOTE
@@ -265,35 +265,35 @@ example file
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx-deployment
-  labels:
-     app: nginx
+name: nginx-deployment
+labels:
+    app: nginx
 spec:
-  replicas: 3
-  selector:
-    matchLabels:
-       app: nginx
-  template:
-    metadata:
-      labels:
-        app: nginx
-  spec:
-    containers:
-    - name: nginx
-      image: nginx:1.14.2
-      ports:
-        - containerPort: 80
+replicas: 3
+selector:
+matchLabels:
+    app: nginx
+template:
+metadata:
+    labels:
+    app: nginx
+spec:
+containers:
+- name: nginx
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80
 #+END_SRC
 
 ** Pod
 - Create imperative pod
-  #+BEGIN_SRC
-  kubectl run <name> --image=<image>
-  #+END_SRC
+#+BEGIN_SRC
+kubectl run <name> --image=<image>
+#+END_SRC
 - Create imperative podfile
-  #+BEGIN_SRC
-  `kubectl run <name> --image=<image> --dry-run=client -o yaml``
-  #+END_SRC
+#+BEGIN_SRC
+`kubectl run <name> --image=<image> --dry-run=client -o yaml``
+#+END_SRC
 ** Namespace
 Doc link: [[https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/][Namespace]]
 #+BEGIN_QUOTE
@@ -330,34 +330,34 @@ example file
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx-deployment
-  labels:
-     app: nginx
+name: nginx-deployment
+labels:
+    app: nginx
 spec:
-  replicas: 3
-  selector:
-    matchLabels:
-       app: nginx
-  template:
-    metadata:
-      labels:
-        app: nginx
-  spec:
-    containers:
-    - name: nginx
-      image: nginx:1.14.2
-      ports:
-        - containerPort: 80
+replicas: 3
+selector:
+matchLabels:
+    app: nginx
+template:
+metadata:
+    labels:
+    app: nginx
+spec:
+containers:
+- name: nginx
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80
 #+END_SRC
 
 - create simple deployment
-  #+BEGIN_SRC
-  kubectl create deployment --image=<image> <name>
-  #+END_SRC
+#+BEGIN_SRC
+kubectl create deployment --image=<image> <name>
+#+END_SRC
 - create simple deploymentfile
-  #+BEGIN_SRC
-  `kubectl create deployment --image=<image> <name> --dry-run=client -o yaml > <filename>
-  #+END_SRC
+#+BEGIN_SRC
+`kubectl create deployment --image=<image> <name> --dry-run=client -o yaml > <filename>
+#+END_SRC
 - Important no replicas param use "kubectl scale" instead
 ** Service
 [[https://kubernetes.io/docs/concepts/services-networking/service/][Service]]
@@ -379,35 +379,35 @@ apiVersion: v1
 - Doc link: [[https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/][Define a Command and Arguments for Container]]
 
 #+BEGIN_SRC yaml
-  apiVersion: v1
-  kind: Pod
-  metadata:
-    name: command-demo
-    labels:
-      purpose: demonstrate-command
-  spec:
-    containers:
-    - name: command-demo-container
-      image: debian
-      command: ["printenv"]
-      args: ["HOSTNAME", "KUBERNETES_PORT"]
-    restartPolicy: OnFailure
-
-  #+END_SRC
-
- #+begin_src yaml
 apiVersion: v1
 kind: Pod
 metadata:
-  name: ubuntu-sleeper-2
+name: command-demo
+labels:
+    purpose: demonstrate-command
 spec:
-  containers:
-  - name: ubuntu
-    image: ubuntu
-    command:
-      - "sleep"
-      - "5000"
- #+end_src
+containers:
+- name: command-demo-container
+    image: debian
+    command: ["printenv"]
+    args: ["HOSTNAME", "KUBERNETES_PORT"]
+restartPolicy: OnFailure
+
+#+END_SRC
+
+#+begin_src yaml
+apiVersion: v1
+kind: Pod
+metadata:
+name: ubuntu-sleeper-2
+spec:
+containers:
+- name: ubuntu
+image: ubuntu
+command:
+    - "sleep"
+    - "5000"
+#+end_src
 
 ** Config Maps
 Doc link: [[https://kubernetes.io/docs/concepts/configuration/configmap/][ConfigMaps]]
@@ -419,7 +419,7 @@ A ConfigMap allows you to decouple environment-specific configuration from your 
 
 *** How to create config maps:
 - Imperative
- #+BEGIN_SRC shell
+#+BEGIN_SRC shell
 
 "create configmapi literal"
 kubectl create configmap <config-name> --from-literal=<key>=<value>
@@ -428,7 +428,7 @@ kubectl create configmap <config-name> --from-literal=<key>=<value>
 kubectl create configmap <config-name> --from-file=<path-to-file>
 
 
- #+END_SRC
+#+END_SRC
 
 - Declarative
 
@@ -437,20 +437,20 @@ kubectl create configmap <config-name> --from-file=<path-to-file>
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: game-demo
+name: game-demo
 data:
-  # property-like keys; each key maps to a simple value
-  player_initial_lives: "3"
-  ui_properties_file_name: "user-interface.properties"
+# property-like keys; each key maps to a simple value
+player_initial_lives: "3"
+ui_properties_file_name: "user-interface.properties"
 
-  # file-like keys
-  game.properties: |
-    enemy.types=aliens,monsters
-    player.maximum-lives=5
-  user-interface.properties: |
-    color.good=purple
-    color.bad=yellow
-    allow.textmode=true
+# file-like keys
+game.properties: |
+enemy.types=aliens,monsters
+player.maximum-lives=5
+user-interface.properties: |
+color.good=purple
+color.bad=yellow
+allow.textmode=true
 
 #+END_SRC
 #+BEGIN_SRC shell
@@ -460,7 +460,7 @@ kubectl create -f <filename>
 *** How to inject config maps
 #+BEGIN_SRC
 "show exitsting maps"
- kubectl get configmaps
+kubectl get configmaps
 
 "describe map"
 kubectl describe configmaps
@@ -468,30 +468,30 @@ kubectl describe configmaps
 #+END_SRC
 
 - Inject to pod's
-  + Inject config file
++ Inject config file
 #+BEGIN_SRC yaml
 apiVersion: v1
 kind: Pod
 metadata:
 spec:
- containers:
-  envFrom:
-    - configMapRef:
-       name: <config name>
+containers:
+envFrom:
+- configMapRef:
+    name: <config name>
 
 #+END_SRC
-  + Inject singe config
++ Inject singe config
 
 #+BEGIN_SRC yaml
 apiVersion: v1
 kind: Pod
 metadata:
 spec:
- containers:
-  envFrom:
-    - configMapKeyRef:
-       name: <config name>
-       key: <key>
+containers:
+envFrom:
+- configMapKeyRef:
+    name: <config name>
+    key: <key>
 #+END_SRC
 
 ** Environment Variable
@@ -507,13 +507,13 @@ Kubernetes Secrets let you store and manage sensitive information, such as passw
 
 #+BEGIN_SRC
 kubectl create secret generic dev-db-secret \
-    --from-literal=username=devuser \
-    --from-literal=password='S!B\*d$zDsb='
+--from-literal=username=devuser \
+--from-literal=password='S!B\*d$zDsb='
 #+END_SRC
 
 #+BEGIN_SRC
 kubectl create secret generic dev-db-secret \
-    --from-file=<path to file>
+--from-file=<path to file>
 #+END_SRC
 
 **** Declarative way to create secrets:
@@ -521,17 +521,17 @@ kubectl create secret generic dev-db-secret \
 apiVersion: v1
 kind: Secret
 metadata:
-  name: app-secret
+name: app-secret
 
 data:
-  <Key>: <value>
+<Key>: <value>
 #+END_SRC
 
 kubectl create -f <filename>
 
 *** Simple way to encrypt secret using Base64 encryption
 #+BEGIN_SRC shell
- echo -n <value> | base64
+echo -n <value> | base64
 #+END_SRC
 
 *** View secrets:
@@ -555,10 +555,10 @@ apiVersion: v1
 kind: Pod
 
 spec:
-  containers:
-    envFrom:
-      - secretRef:
-          name: <secret:name>
+containers:
+envFrom:
+    - secretRef:
+        name: <secret:name>
 
 #+END_SRC
 Secrets could be injected as Single value Environment variable or volume.
@@ -573,23 +573,23 @@ Taints and tolerations work together to ensure that pods are not scheduled onto 
 #+END_QUOTE
 
 - How to:
-  - Taint Node
-    #+BEGIN_SRC
-    kubctl taint nodes node-name key=value:taint-effect
-    #+END_SRC
-    Taint-effect
-    | NoSchedule       | avoid placing the node on the pod             |
-    | PreferNoSchedule | try to avoid placing the pod on the node      |
-    | NoExecute        | Avoid new pods, existing pods will be evicted |
-  - Apply tolarations to pods
-    #+BEGIN_SRC yaml
-    apiVersion: v1
-    spec:
-      tolarations:
-      - key:"<key>"
-        operator:"<operator>"
-        value: "<value>"
-    #+END_SRC
+- Taint Node
+#+BEGIN_SRC
+kubctl taint nodes node-name key=value:taint-effect
+#+END_SRC
+Taint-effect
+| NoSchedule       | avoid placing the node on the pod             |
+| PreferNoSchedule | try to avoid placing the pod on the node      |
+| NoExecute        | Avoid new pods, existing pods will be evicted |
+- Apply tolarations to pods
+#+BEGIN_SRC yaml
+apiVersion: v1
+spec:
+    tolarations:
+    - key:"<key>"
+    operator:"<operator>"
+    value: "<value>"
+#+END_SRC
 
 ** Resource Request
 ** Node Selectors
@@ -623,56 +623,56 @@ Main reason for filtering ( Bridge tags filters )
 
 *** How to use:
 - Filter manually
-    #+BEGIN_SRC
-    kubectl get pods --selector <label key>=<label val>
-    #+END_SRC
+#+BEGIN_SRC
+kubectl get pods --selector <label key>=<label val>
+#+END_SRC
 - Address pods on replica sets
-  Replica set definiton file
-  #+BEGIN_SRC
-  apiVersion: apps/v1
-  kind: ReplicaSet
-  ...
-  spec:
-    replicas: <num of replicas>
-    selector:
-      matchLabels:
-        app: App1             | -> Connect replica sets to the pod
-    template:
-      metadata:
-        labels:
-          app: App1
-          function: Front-end | -> Pod labels
+Replica set definiton file
+#+BEGIN_SRC
+apiVersion: apps/v1
+kind: ReplicaSet
+...
+spec:
+replicas: <num of replicas>
+selector:
+    matchLabels:
+    app: App1             | -> Connect replica sets to the pod
+template:
+    metadata:
+    labels:
+        app: App1
+        function: Front-end | -> Pod labels
 
-  #+END_SRC
+#+END_SRC
 
 ** Init Containers
 - kubernetes doc ref: [[https://kubernetes.io/docs/concepts/workloads/pods/init-containers/][Init Containers]]
 
-  #+BEGIN_QUOTE
-  This page provides an overview of init containers: specialized containers that run before app containers in a Pod. Init containers can contain utilities or setup scripts not present in an app image.
-  You can specify init containers in the Pod specification alongside the containers array (which describes app containers).
-  #+END_QUOTE
+#+BEGIN_QUOTE
+This page provides an overview of init containers: specialized containers that run before app containers in a Pod. Init containers can contain utilities or setup scripts not present in an app image.
+You can specify init containers in the Pod specification alongside the containers array (which describes app containers).
+#+END_QUOTE
 
 
 #+BEGIN_SRC
 apiVersion: v1
 kind: Pod
 metadata:
-  name: myapp-pod
-  labels:
-    app: myapp
+name: myapp-pod
+labels:
+app: myapp
 spec:
-  containers:
-  - name: myapp-container
-    image: busybox:1.28
-    command: ['sh', '-c', 'echo The app is running! && sleep 3600']
-  initContainers:
-  - name: init-myservice
-    image: busybox:1.28
-    command: ['sh', '-c', "until nslookup myservice.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for myservice; sleep 2; done"]
-  - name: init-mydb
-    image: busybox:1.28
-    command: ['sh', '-c', "until nslookup mydb.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for mydb; sleep 2; done"]
+containers:
+- name: myapp-container
+image: busybox:1.28
+command: ['sh', '-c', 'echo The app is running! && sleep 3600']
+initContainers:
+- name: init-myservice
+image: busybox:1.28
+command: ['sh', '-c', "until nslookup myservice.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for myservice; sleep 2; done"]
+- name: init-mydb
+image: busybox:1.28
+command: ['sh', '-c', "until nslookup mydb.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for mydb; sleep 2; done"]
 #+END_SRC
 
 ** Jobs / Cron Jobs
@@ -687,10 +687,10 @@ kind: Pod
 metadata:
 name: math-pod
 spec:
-  containers:
-    - name:
-      image:
-      command: []
+containers:
+- name:
+    image:
+    command: []
 restartPolicy: Never                | Kubernetes does not restart the container
 #+END_SRC
 
@@ -702,15 +702,15 @@ kind: Job
 metadata:
 name: math-pod
 spec:
-  completions: <number of inst>       | only number of comnl runs count
-  parallelism: <num>                  | completed parallel
+completions: <number of inst>       | only number of comnl runs count
+parallelism: <num>                  | completed parallel
 template:
-    spec:
-    containers:
-        - name:
-          image:
-          command: []
-    restartPolicy: Never
+spec:
+containers:
+    - name:
+        image:
+        command: []
+restartPolicy: Never
 #+END_SRC
 
 *** How to use jobs
@@ -763,37 +763,37 @@ Meanwhile, when IP based NetworkPolicies are created, we define policies based o
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: test-network-policy
-  namespace: default
+name: test-network-policy
+namespace: default
 spec:
-  podSelector:
-  matchLabels:
-    role: db
-  policyTypes:
-  - Ingress
-  - Egress
-  ingress:
-  - from:
-    - ipBlock:
-        cidr: 172.17.0.0/16
-        except:
-        - 172.17.1.0/24
-    - namespaceSelector:
-        matchLabels:
-          project: myproject
-    - podSelector:
-        matchLabels:
-          role: frontend
-    ports:
-    - protocol: TCP
-    port: 6379
-  egress:
-  - to:
-    - ipBlock:
-        cidr: 10.0.0.0/24
-    ports:
-    - protocol: TCP
-      port: 5978
+podSelector:
+matchLabels:
+role: db
+policyTypes:
+- Ingress
+- Egress
+ingress:
+- from:
+- ipBlock:
+    cidr: 172.17.0.0/16
+    except:
+    - 172.17.1.0/24
+- namespaceSelector:
+    matchLabels:
+        project: myproject
+- podSelector:
+    matchLabels:
+        role: frontend
+ports:
+- protocol: TCP
+port: 6379
+egress:
+- to:
+- ipBlock:
+    cidr: 10.0.0.0/24
+ports:
+- protocol: TCP
+    port: 5978
 #+END_SRC
 
 * State Presistance
@@ -806,44 +806,126 @@ spec:
 apiVersion:v1
 kind: PersistentVolumeClaim
 metadata:
-  name: myclaim
+name: myclaim
 spec:
-  accessModes:
-    - ReadWriteOnce
-  volumeMode: Filesystem
-  resources:
-    requests:
-       storage: 8Gi
-  storageClassName: slow
-  selector:
-    matchLabels:
-      release: "stable"
-    matchExpressions:
-      - {key: environment, operator: In, values: [dev]}
+accessModes:
+- ReadWriteOnce
+volumeMode: Filesystem
+resources:
+requests:
+    storage: 8Gi
+storageClassName: slow
+selector:
+matchLabels:
+    release: "stable"
+matchExpressions:
+    - {key: environment, operator: In, values: [dev]}
 
 #+END_SRC
 * Additional themes
 ** Authorization
 *** Notes
 - Need to structure access between different users and kubectl
-  Node Authorizer user -> cube api -> cubelet
+Node Authorizer user -> cube api -> cubelet
 
 *** RBAC Role Besed Access Control
 - apiVersion: rbac.authorization.k8s.io/v1
 - rules
-  #+begin_src shell
-  apiVersion
-  kind
-  metadata:
-    name:
-  rules:
-  - apiGroups: [""]    / Api groups are:
-    resource:  ["pods"]
-    verbs: ["list","get","create", "update", "delete"]
-  #+end_src
+developer-role.yaml
+#+begin_src shell
+apiVersion
+kind
+metadata:
+name:
+rules:
+- apiGroups: [""]    / Api groups could be left as blank
+resource:  ["pods"]
+verbs: ["list","get","create", "update", "delete"]
+resourceNames: ["red","blue"]
+#+end_src
+
+devuser-developer-binding.yaml
+#+begin_src shell
+apiVersion
+kind
+metadata
+subjects:
+- kind: User
+name: dev-user
+apiGroup: rbac.authorization.k8s.io
+roleRef:
+- kind: Role
+name: developer
+apiGroup: rbac.authorization.k8s.io
+#+end_src
+
+- namespace could be spec whithin the methadata
+#+begin_src shell
+methadata:
+name:
+namespace:
+#+end_src
+
+#+RESULTS:
+*** Cluster Roles
+- how to get non namespaced resources
+#+begin_src shell
+kubctl api-resources --namespaced=false # gets non namespaced resources
+kubctl api-resources --namespaced=true # gets namespaced resources
+#+end_src
+- Management of non ns resources
+- Non ms resource could be managed with clusterroles and clusterrolebindings
+- ClusterRoles :
+    - Cluster Admin role can be created
+    - Can view nodes
+    - Can create nodes
+    - Can delete nodes
+        #+begin_src shell
+        # cluster-role-admin.yml
+        apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRole
+        metadata:
+        name: cluster-administrator
+        rules:
+        - apiGroups: [""]
+        resources: ["nodes"]
+        verbs: ["list","get","create","delete"]
+        #+end_src
+        #+begin_src shell
+        kubctl create -f cluster-admin-role.yaml
+        #+end_src
+
+        #+RESULTS:
+
+    - Storage admin roule
+    - Can view PVs
+    - Can create PVs
+    - Can delete PVs
+    -
+- Clusterbindings
+    -
+    -
+    -
+
+*** kubectl api for rbac
+#+begin_src shell
+kubctl get roles                        // provide roles
+kubctl get rolebinding                  // provide role bindings
+kubctl describe role developer          // desc dev role
+kubctl describe rolebinding             // describe role bindings
+# Check access to the cluster
+kubctl auth can-i create deployments
+kubctl auth can-i delete nodes
+kubctl auth can-i delete nodes --as <user>
+kubctl auth can-i delete nodes --as <user> --namespace test
+
+#+end_src
 
 
-
+** Admission Controllers
+#+begin_quote
+Anmisson Controller helps to implement better security messures to enforsce how the controller is uesed
+#+end_quote
 
 
 * Tool ideas etc.
@@ -870,7 +952,7 @@ export f="--force --grace-period=0"
 
 start autocomplition :
 #+BEGIN_SRC shell
- complete -F __start_kubectl k
+complete -F __start_kubectl k
 #+END_SRC
 
 #inside .vimrc
@@ -881,20 +963,20 @@ set nu
 
 ** Vimrc settings
 #+BEGIN_SRC vimrc
-  set ts=2 sw=2 expandtab
-  set nu
+set ts=2 sw=2 expandtab
+set nu
 ** Used Cli Tools
 *** Netcat
 [[https://linuxize.com/post/netcat-nc-command-with-examples/][nc examples]]
 - Scan for open ports
-  #+BEGIN_SRC shell
+#+BEGIN_SRC shell
 nc -z -v <service name> <port>
-  #+END_SRC
+#+END_SRC
 *** Grep
 - S chow more lines after hit
-  #+BEGIN_SRC shell
+#+BEGIN_SRC shell
 grep A<number of lines> <serarch string>
-  #+END_SRC
+#+END_SRC
 
 #+END_SRC
 **  TODO:
@@ -913,32 +995,32 @@ grep A<number of lines> <serarch string>
 * Test extensions
 ** Docker
 - list imgages
-  #+begin_src shell
-  docker images
-  #+end_src
+#+begin_src shell
+docker images
+#+end_src
 - build images
-  #+begin_src shell
-  docker build -t webapp-color
-  #+end_src
+#+begin_src shell
+docker build -t webapp-color
+#+end_src
 - run image
-  #+begin_src shell
-  docker run -p <hostport>:<container port> <image>
-  #+end_src
+#+begin_src shell
+docker run -p <hostport>:<container port> <image>
+#+end_src
 ** Kubeconfig file
 - locaton
-  Usally loacated at ~/.kube/config
-  or see KUBECONFIG environment variable
+Usally loacated at ~/.kube/config
+or see KUBECONFIG environment variable
 - params
-  #+begin_src shell
-  kubectl config view
-  #+end_src
+#+begin_src shell
+kubectl config view
+#+end_src
 - change user context
-  #+begin_src shell
- #To use that context, run the command:
- kubectl config --kubeconfig=/root/my-kube-config use-context research
- # To know the current context, run the command:
- kubectl config --kubeconfig=/root/my-kube-config current-context
-  #+end_src
+#+begin_src shell
+#To use that context, run the command:
+kubectl config --kubeconfig=/root/my-kube-config use-context research
+# To know the current context, run the command:
+kubectl config --kubeconfig=/root/my-kube-config current-context
+#+end_src
 *** Usefull config commands
 #+begin_src shell
 #show the full contents of your kubeconfig file
@@ -983,17 +1065,17 @@ ls
 apiVersion: v1
 kind: Pod
 metadata:
-  creationTimestamp: null
-  labels:
-    run: busybox
-  name: busybox
+creationTimestamp: null
+labels:
+run: busybox
+name: busybox
 spec:
-  containers:
-  - image: busybox
-    name: busybox
-    resources: {}
-  dnsPolicy: ClusterFirst
-  restartPolicy: Always
+containers:
+- image: busybox
+name: busybox
+resources: {}
+dnsPolicy: ClusterFirst
+restartPolicy: Always
 status: {}
 mc.yaml
 #+end_example
@@ -1004,33 +1086,33 @@ complete multipod file
 apiVersion: v1
 kind: Pod
 metadata:
-  creationTimestamp: null
-  labels:
-    run: busybox
-  name: busybox
+creationTimestamp: null
+labels:
+run: busybox
+name: busybox
 spec:
-  containers:
-  - args:
-    - bin/sh
-    - -c
-    - echo Hello word;sleep 3600
-    image: busybox
-    name: busybox1
-    resources: {}
-  - args:
-    - bin/sh
-    - -c
-    - echo Hello world;sleep 3600
-    image: busybox
-    name: busybox2
-  - args:
-    - bin/sh
-    - -c
-    - echo this is third container ;sleep 3600
-    image: busybox
-    name: busybox3
-  dnsPolicy: ClusterFirst
-  restartPolicy: Always
+containers:
+- args:
+- bin/sh
+- -c
+- echo Hello word;sleep 3600
+image: busybox
+name: busybox1
+resources: {}
+- args:
+- bin/sh
+- -c
+- echo Hello world;sleep 3600
+image: busybox
+name: busybox2
+- args:
+- bin/sh
+- -c
+- echo this is third container ;sleep 3600
+image: busybox
+name: busybox3
+dnsPolicy: ClusterFirst
+restartPolicy: Always
 status: {}
 #+END_SRC
 
@@ -1057,90 +1139,90 @@ Annotations:  <none>
 Status:       Running
 IP:           172.18.0.6
 IPs:
-  IP:  172.18.0.6
+IP:  172.18.0.6
 Containers:
-  busybox1:
-    Container ID:  docker://a8a84bb695b64a75103ee7f896d9333abed7492a941627fd246c15bcbbfedc6f
-    Image:         busybox
-    Image ID:      docker-pullable://busybox@sha256:a9286defaba7b3a519d585ba0e37d0b2cbee74ebfe590960b0b1d6a5e97d1e1d
-    Port:          <none>
-    Host Port:     <none>
-    Args:
-      bin/sh
-      -c
-      echo Hello word;sleep 3600
-    State:          Running
-      Started:      Tue, 20 Oct 2020 11:41:38 +0200
-    Ready:          True
-    Restart Count:  0
-    Environment:    <none>
-    Mounts:
-      /var/run/secrets/kubernetes.io/serviceaccount from default-token-qpgrj (ro)
-  busybox2:
-    Container ID:  docker://7bf844d973e73bdeee3cf907fabb98e0f825457d328d8c9d7fa1da38e365f40c
-    Image:         busybox
-    Image ID:      docker-pullable://busybox@sha256:a9286defaba7b3a519d585ba0e37d0b2cbee74ebfe590960b0b1d6a5e97d1e1d
-    Port:          <none>
-    Host Port:     <none>
-    Args:
-      bin/sh
-      -c
-      echo Hello world;sleep 3600
-    State:          Running
-      Started:      Tue, 20 Oct 2020 11:41:40 +0200
-    Ready:          True
-    Restart Count:  0
-    Environment:    <none>
-    Mounts:
-      /var/run/secrets/kubernetes.io/serviceaccount from default-token-qpgrj (ro)
-  busybox3:
-    Container ID:  docker://5b7c2909ee0d1cae50aa5d03a853032b00d0fd23558ec156f13076ef33e62b1c
-    Image:         busybox
-    Image ID:      docker-pullable://busybox@sha256:a9286defaba7b3a519d585ba0e37d0b2cbee74ebfe590960b0b1d6a5e97d1e1d
-    Port:          <none>
-    Host Port:     <none>
-    Args:
-      bin/sh
-      -c
-      echo this is third container ;sleep 3600
-    State:          Running
-      Started:      Tue, 20 Oct 2020 11:41:42 +0200
-    Ready:          True
-    Restart Count:  0
-    Environment:    <none>
-    Mounts:
-      /var/run/secrets/kubernetes.io/serviceaccount from default-token-qpgrj (ro)
+busybox1:
+Container ID:  docker://a8a84bb695b64a75103ee7f896d9333abed7492a941627fd246c15bcbbfedc6f
+Image:         busybox
+Image ID:      docker-pullable://busybox@sha256:a9286defaba7b3a519d585ba0e37d0b2cbee74ebfe590960b0b1d6a5e97d1e1d
+Port:          <none>
+Host Port:     <none>
+Args:
+    bin/sh
+    -c
+    echo Hello word;sleep 3600
+State:          Running
+    Started:      Tue, 20 Oct 2020 11:41:38 +0200
+Ready:          True
+Restart Count:  0
+Environment:    <none>
+Mounts:
+    /var/run/secrets/kubernetes.io/serviceaccount from default-token-qpgrj (ro)
+busybox2:
+Container ID:  docker://7bf844d973e73bdeee3cf907fabb98e0f825457d328d8c9d7fa1da38e365f40c
+Image:         busybox
+Image ID:      docker-pullable://busybox@sha256:a9286defaba7b3a519d585ba0e37d0b2cbee74ebfe590960b0b1d6a5e97d1e1d
+Port:          <none>
+Host Port:     <none>
+Args:
+    bin/sh
+    -c
+    echo Hello world;sleep 3600
+State:          Running
+    Started:      Tue, 20 Oct 2020 11:41:40 +0200
+Ready:          True
+Restart Count:  0
+Environment:    <none>
+Mounts:
+    /var/run/secrets/kubernetes.io/serviceaccount from default-token-qpgrj (ro)
+busybox3:
+Container ID:  docker://5b7c2909ee0d1cae50aa5d03a853032b00d0fd23558ec156f13076ef33e62b1c
+Image:         busybox
+Image ID:      docker-pullable://busybox@sha256:a9286defaba7b3a519d585ba0e37d0b2cbee74ebfe590960b0b1d6a5e97d1e1d
+Port:          <none>
+Host Port:     <none>
+Args:
+    bin/sh
+    -c
+    echo this is third container ;sleep 3600
+State:          Running
+    Started:      Tue, 20 Oct 2020 11:41:42 +0200
+Ready:          True
+Restart Count:  0
+Environment:    <none>
+Mounts:
+    /var/run/secrets/kubernetes.io/serviceaccount from default-token-qpgrj (ro)
 Conditions:
-  Type              Status
-  Initialized       True
-  Ready             True
-  ContainersReady   True
-  PodScheduled      True
+Type              Status
+Initialized       True
+Ready             True
+ContainersReady   True
+PodScheduled      True
 Volumes:
-  default-token-qpgrj:
-    Type:        Secret (a volume populated by a Secret)
-    SecretName:  default-token-qpgrj
-    Optional:    false
+default-token-qpgrj:
+Type:        Secret (a volume populated by a Secret)
+SecretName:  default-token-qpgrj
+Optional:    false
 QoS Class:       BestEffort
 Node-Selectors:  <none>
 Tolerations:     node.kubernetes.io/not-ready:NoExecute for 300s
-                 node.kubernetes.io/unreachable:NoExecute for 300s
+                node.kubernetes.io/unreachable:NoExecute for 300s
 Events:
-  Type    Reason     Age        From               Message
-  ----    ------     ----       ----               -------
-  Normal  Scheduled  <unknown>                     Successfully assigned default/busybox to minikube
-  Normal  Pulling    47s        kubelet, minikube  Pulling image "busybox"
-  Normal  Pulled     45s        kubelet, minikube  Successfully pulled image "busybox" in 2.055967s
-  Normal  Created    45s        kubelet, minikube  Created container busybox1
-  Normal  Started    45s        kubelet, minikube  Started container busybox1
-  Normal  Pulling    45s        kubelet, minikube  Pulling image "busybox"
-  Normal  Pulled     43s        kubelet, minikube  Successfully pulled image "busybox" in 1.9051111s
-  Normal  Created    43s        kubelet, minikube  Created container busybox2
-  Normal  Started    43s        kubelet, minikube  Started container busybox2
-  Normal  Pulling    43s        kubelet, minikube  Pulling image "busybox"
-  Normal  Pulled     41s        kubelet, minikube  Successfully pulled image "busybox" in 2.1070341s
-  Normal  Created    41s        kubelet, minikube  Created container busybox3
-  Normal  Started    41s        kubelet, minikube  Started container busybox3
+Type    Reason     Age        From               Message
+----    ------     ----       ----               -------
+Normal  Scheduled  <unknown>                     Successfully assigned default/busybox to minikube
+Normal  Pulling    47s        kubelet, minikube  Pulling image "busybox"
+Normal  Pulled     45s        kubelet, minikube  Successfully pulled image "busybox" in 2.055967s
+Normal  Created    45s        kubelet, minikube  Created container busybox1
+Normal  Started    45s        kubelet, minikube  Started container busybox1
+Normal  Pulling    45s        kubelet, minikube  Pulling image "busybox"
+Normal  Pulled     43s        kubelet, minikube  Successfully pulled image "busybox" in 1.9051111s
+Normal  Created    43s        kubelet, minikube  Created container busybox2
+Normal  Started    43s        kubelet, minikube  Started container busybox2
+Normal  Pulling    43s        kubelet, minikube  Pulling image "busybox"
+Normal  Pulled     41s        kubelet, minikube  Successfully pulled image "busybox" in 2.1070341s
+Normal  Created    41s        kubelet, minikube  Created container busybox3
+Normal  Started    41s        kubelet, minikube  Started container busybox3
 #+end_example
 
 **** 30
@@ -1159,23 +1241,23 @@ kubectl logs busybox -c busybox3
 : this is third container
 
 **** 32 Run the command in the third container
- #+BEGIN_SRC shell :results output
- kubectl exec busybox -c busybox3  -- ls
- #+END_SRC
+#+BEGIN_SRC shell :results output
+kubectl exec busybox -c busybox3  -- ls
+#+END_SRC
 
- #+RESULTS:
- #+begin_example
- bin
- dev
- etc
- home
- proc
- root
- sys
- tmp
- usr
- var
- #+end_example
+#+RESULTS:
+#+begin_example
+bin
+dev
+etc
+home
+proc
+root
+sys
+tmp
+usr
+var
+#+end_example
 **** 33 Show metrics of the containers
 #+BEGIN_SRC shell :results output
 kubectl top pod busybox --containers
@@ -1193,22 +1275,22 @@ cat busybox_sidecar.yml
 apiVersion: v1
 kind: Pod
 metadata:
-  creationTimestamp: null
-  labels:
-    run: busybox_sidecar
-  name: busybox_sidecar
+creationTimestamp: null
+labels:
+run: busybox_sidecar
+name: busybox_sidecar
 spec:
-  containers:
-  - args:
-    - bin/sh
-    - -c
-    - while true;do echo 'Hi I am from Main Container' >> /var/log/index.html;sleep
-      5;done
-    image: busybox
-    name: busybox_sidecar
-    resources: {}
-  dnsPolicy: ClusterFirst
-  restartPolicy: Always
+containers:
+- args:
+- bin/sh
+- -c
+- while true;do echo 'Hi I am from Main Container' >> /var/log/index.html;sleep
+    5;done
+image: busybox
+name: busybox_sidecar
+resources: {}
+dnsPolicy: ClusterFirst
+restartPolicy: Always
 status: {}
 #+end_example
 
@@ -1222,92 +1304,92 @@ kubectl create -f busybox_sidecar.yml
 #+RESULTS:
 : pod/busybox-sidecar created
 
- #+BEGIN_SRC shell :results output
+#+BEGIN_SRC shell :results output
 kubectl describe po busybox-sidecar
- #+END_SRC
+#+END_SRC
 
- #+RESULTS:
- #+begin_example
- Name:         busybox-sidecar
- Namespace:    default
- Priority:     0
- Node:         minikube/172.17.0.2
- Start Time:   Tue, 20 Oct 2020 14:25:52 +0200
- Labels:       run=busybox-sidecar
- Annotations:  <none>
- Status:       Running
- IP:           172.18.0.8
- IPs:
-   IP:  172.18.0.8
- Containers:
-   sidecar-container:
-     Container ID:   docker://34ee9fd9e1a8c216fd585581e86731050378dd3f5471e791a2bcba62a0ace328
-     Image:          nginx
-     Image ID:       docker-pullable://nginx@sha256:ed7f815851b5299f616220a63edac69a4cc200e7f536a56e421988da82e44ed8
-     Port:           80/TCP
-     Host Port:      0/TCP
-     State:          Running
-       Started:      Tue, 20 Oct 2020 14:25:55 +0200
-     Ready:          True
-     Restart Count:  0
-     Environment:    <none>
-     Mounts:
-       /usr/share/nginx/html from var-logs (rw)
-       /var/run/secrets/kubernetes.io/serviceaccount from default-token-qpgrj (ro)
-   main-container:
-     Container ID:  docker://163038776eb6f9ee5591aa4ec5a4d0b56397366c5dad505b57a746a51202029a
-     Image:         busybox
-     Image ID:      docker-pullable://busybox@sha256:a9286defaba7b3a519d585ba0e37d0b2cbee74ebfe590960b0b1d6a5e97d1e1d
-     Port:          <none>
-     Host Port:     <none>
-     Args:
-       bin/sh
-       -c
-       while true; do
-         echo 'Hi I am from Main Container' >> /var/log/index.html;
-         sleep 5;
-       done
+#+RESULTS:
+#+begin_example
+Name:         busybox-sidecar
+Namespace:    default
+Priority:     0
+Node:         minikube/172.17.0.2
+Start Time:   Tue, 20 Oct 2020 14:25:52 +0200
+Labels:       run=busybox-sidecar
+Annotations:  <none>
+Status:       Running
+IP:           172.18.0.8
+IPs:
+IP:  172.18.0.8
+Containers:
+sidecar-container:
+    Container ID:   docker://34ee9fd9e1a8c216fd585581e86731050378dd3f5471e791a2bcba62a0ace328
+    Image:          nginx
+    Image ID:       docker-pullable://nginx@sha256:ed7f815851b5299f616220a63edac69a4cc200e7f536a56e421988da82e44ed8
+    Port:           80/TCP
+    Host Port:      0/TCP
+    State:          Running
+    Started:      Tue, 20 Oct 2020 14:25:55 +0200
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+    /usr/share/nginx/html from var-logs (rw)
+    /var/run/secrets/kubernetes.io/serviceaccount from default-token-qpgrj (ro)
+main-container:
+    Container ID:  docker://163038776eb6f9ee5591aa4ec5a4d0b56397366c5dad505b57a746a51202029a
+    Image:         busybox
+    Image ID:      docker-pullable://busybox@sha256:a9286defaba7b3a519d585ba0e37d0b2cbee74ebfe590960b0b1d6a5e97d1e1d
+    Port:          <none>
+    Host Port:     <none>
+    Args:
+    bin/sh
+    -c
+    while true; do
+        echo 'Hi I am from Main Container' >> /var/log/index.html;
+        sleep 5;
+    done
 
-     State:          Running
-       Started:      Tue, 20 Oct 2020 14:25:57 +0200
-     Ready:          True
-     Restart Count:  0
-     Environment:    <none>
-     Mounts:
-       /var/logs from var-logs (rw)
-       /var/run/secrets/kubernetes.io/serviceaccount from default-token-qpgrj (ro)
- Conditions:
-   Type              Status
-   Initialized       True
-   Ready             True
-   ContainersReady   True
-   PodScheduled      True
- Volumes:
-   var-logs:
-     Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
-     Medium:
-     SizeLimit:  <unset>
-   default-token-qpgrj:
-     Type:        Secret (a volume populated by a Secret)
-     SecretName:  default-token-qpgrj
-     Optional:    false
- QoS Class:       BestEffort
- Node-Selectors:  <none>
- Tolerations:     node.kubernetes.io/not-ready:NoExecute for 300s
-                  node.kubernetes.io/unreachable:NoExecute for 300s
- Events:
-   Type    Reason     Age        From               Message
-   ----    ------     ----       ----               -------
-   Normal  Scheduled  <unknown>                     Successfully assigned default/busybox-sidecar to minikube
-   Normal  Pulling    2m8s       kubelet, minikube  Pulling image "nginx"
-   Normal  Pulled     2m5s       kubelet, minikube  Successfully pulled image "nginx" in 2.3070851s
-   Normal  Created    2m5s       kubelet, minikube  Created container sidecar-container
-   Normal  Started    2m5s       kubelet, minikube  Started container sidecar-container
-   Normal  Pulling    2m5s       kubelet, minikube  Pulling image "busybox"
-   Normal  Pulled     2m3s       kubelet, minikube  Successfully pulled image "busybox" in 2.3570642s
-   Normal  Created    2m3s       kubelet, minikube  Created container main-container
-   Normal  Started    2m3s       kubelet, minikube  Started container main-container
- #+end_example
+    State:          Running
+    Started:      Tue, 20 Oct 2020 14:25:57 +0200
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+    /var/logs from var-logs (rw)
+    /var/run/secrets/kubernetes.io/serviceaccount from default-token-qpgrj (ro)
+Conditions:
+Type              Status
+Initialized       True
+Ready             True
+ContainersReady   True
+PodScheduled      True
+Volumes:
+var-logs:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:
+    SizeLimit:  <unset>
+default-token-qpgrj:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  default-token-qpgrj
+    Optional:    false
+QoS Class:       BestEffort
+Node-Selectors:  <none>
+Tolerations:     node.kubernetes.io/not-ready:NoExecute for 300s
+                node.kubernetes.io/unreachable:NoExecute for 300s
+Events:
+Type    Reason     Age        From               Message
+----    ------     ----       ----               -------
+Normal  Scheduled  <unknown>                     Successfully assigned default/busybox-sidecar to minikube
+Normal  Pulling    2m8s       kubelet, minikube  Pulling image "nginx"
+Normal  Pulled     2m5s       kubelet, minikube  Successfully pulled image "nginx" in 2.3070851s
+Normal  Created    2m5s       kubelet, minikube  Created container sidecar-container
+Normal  Started    2m5s       kubelet, minikube  Started container sidecar-container
+Normal  Pulling    2m5s       kubelet, minikube  Pulling image "busybox"
+Normal  Pulled     2m3s       kubelet, minikube  Successfully pulled image "busybox" in 2.3570642s
+Normal  Created    2m3s       kubelet, minikube  Created container main-container
+Normal  Started    2m3s       kubelet, minikube  Started container main-container
+#+end_example
 
 **** 35 Exec containers
 - Exec into main container
@@ -1318,72 +1400,72 @@ kubectl exec -it busybox-sidecar -c main-container -- sh
 
 *** Pod Design
 **** 36 Pods with label information
- #+BEGIN_SRC shell :result output
+#+BEGIN_SRC shell :result output
 kubectl get pods --show-labels
- #+END_SRC
+#+END_SRC
 
- #+RESULTS:
- | NAME            | READY | STATUS  | RESTARTS | AGE   | LABELS              |
- | busybox         | 3/3   | Running |       15 | 5h32m | run=busybox         |
- | busybox-sidecar | 2/2   | Running |        0 | 168m  | run=busybox-sidecar |
- | counter         | 3/3   | Running |        0 | 174m  | <none>              |
- | nginx           | 1/1   | Running |        0 | 7h44m | run=nginx           |
- | nginx-dev1      | 1/1   | Running |        0 | 8m6s  | env=dev             |
- | nginx-dev2      | 1/1   | Running |        0 | 8m6s  | env=dev             |
- | nginx-dev3      | 1/1   | Running |        0 | 8m6s  | env=dev             |
- | nginx2          | 0/1   | Error   |        0 | 8h    | run=nginx2          |
- | pod-readines    | 1/1   | Running |        1 | 3d23h | run=pod-readines    |
- | test            | 1/1   | Running |        1 | 4d    | run=test            |
+#+RESULTS:
+| NAME            | READY | STATUS  | RESTARTS | AGE   | LABELS              |
+| busybox         | 3/3   | Running |       15 | 5h32m | run=busybox         |
+| busybox-sidecar | 2/2   | Running |        0 | 168m  | run=busybox-sidecar |
+| counter         | 3/3   | Running |        0 | 174m  | <none>              |
+| nginx           | 1/1   | Running |        0 | 7h44m | run=nginx           |
+| nginx-dev1      | 1/1   | Running |        0 | 8m6s  | env=dev             |
+| nginx-dev2      | 1/1   | Running |        0 | 8m6s  | env=dev             |
+| nginx-dev3      | 1/1   | Running |        0 | 8m6s  | env=dev             |
+| nginx2          | 0/1   | Error   |        0 | 8h    | run=nginx2          |
+| pod-readines    | 1/1   | Running |        1 | 3d23h | run=pod-readines    |
+| test            | 1/1   | Running |        1 | 4d    | run=test            |
 
 **** 37 Create nginx pods
 - create pods
- #+BEGIN_SRC shell :results output
+#+BEGIN_SRC shell :results output
 kubectl run nginx-dev1 --image=nginx --labels=env=dev
 kubectl run nginx-dev2 --image=nginx --labels=env=dev
 kubectl run nginx-dev3 --image=nginx --labels=env=dev
- #+END_SRC
+#+END_SRC
 
- #+RESULTS:
- : pod/nginx-dev1 created
- : pod/nginx-dev2 created
- : pod/nginx-dev3 created
+#+RESULTS:
+: pod/nginx-dev1 created
+: pod/nginx-dev2 created
+: pod/nginx-dev3 created
 
 - verify pod labels
-  #+BEGIN_SRC shell :results output
+#+BEGIN_SRC shell :results output
 kubectl get pods --show-labels
-  #+END_SRC
+#+END_SRC
 
-  #+RESULTS:
-  #+begin_example
-  NAME              READY   STATUS    RESTARTS   AGE     LABELS
-  busybox           3/3     Running   15         5h26m   run=busybox
-  busybox-sidecar   2/2     Running   0          162m    run=busybox-sidecar
-  counter           3/3     Running   0          168m    <none>
-  nginx             1/1     Running   0          7h38m   run=nginx
-  nginx-dev1        1/1     Running   0          115s    env=dev
-  nginx-dev2        1/1     Running   0          115s    env=dev
-  nginx-dev3        1/1     Running   0          115s    env=dev
-  nginx2            0/1     Error     0          8h      run=nginx2
-  pod-readines      1/1     Running   1          3d22h   run=pod-readines
-  test              1/1     Running   1          4d      run=test
-  #+end_example
+#+RESULTS:
+#+begin_example
+NAME              READY   STATUS    RESTARTS   AGE     LABELS
+busybox           3/3     Running   15         5h26m   run=busybox
+busybox-sidecar   2/2     Running   0          162m    run=busybox-sidecar
+counter           3/3     Running   0          168m    <none>
+nginx             1/1     Running   0          7h38m   run=nginx
+nginx-dev1        1/1     Running   0          115s    env=dev
+nginx-dev2        1/1     Running   0          115s    env=dev
+nginx-dev3        1/1     Running   0          115s    env=dev
+nginx2            0/1     Error     0          8h      run=nginx2
+pod-readines      1/1     Running   1          3d22h   run=pod-readines
+test              1/1     Running   1          4d      run=test
+#+end_example
 
 - filter labels
-   #+BEGIN_SRC shell :results output
+#+BEGIN_SRC shell :results output
 kubectl get pods -l env=dev
-   #+END_SRC
+#+END_SRC
 
-   #+RESULTS:
-   : NAME         READY   STATUS    RESTARTS   AGE
-   : nginx-dev1   1/1     Running   0          6m19s
-   : nginx-dev2   1/1     Running   0          6m19s
-   : nginx-dev3   1/1     Running   0          6m19s
+#+RESULTS:
+: NAME         READY   STATUS    RESTARTS   AGE
+: nginx-dev1   1/1     Running   0          6m19s
+: nginx-dev2   1/1     Running   0          6m19s
+: nginx-dev3   1/1     Running   0          6m19s
 
 - change label
-  #+BEGIN_SRC shell :results output
+#+BEGIN_SRC shell :results output
 kubectl label pod nginx-dev3 env=uat --overwrite
 kubectl get pods --show-labels
-  #+END_SRC
+#+END_SRC
 
 **** 65 Get yaml of rs and po from deployment
 #+BEGIN_SRC shell :result output
@@ -1401,3 +1483,26 @@ kubectl set image deploy <name> <image>=<image:new version>
 ** KodeKloud
 *** Configuration
 ***** Cmmands and Arguments
+*** ClusterRoles
+**** Inspect environment
+#+begin_quote
+Inspect the environment and identify the authorization modes configured on the cluster.
+Check the kube-apiserver settings.
+#+end_quote
+#+begin_src shell
+kubectl describe pod kube-apiserver-controlplane -n kube-system
+
+#+end_src
+
+ #+begin_quote
+What are the resources the kube-proxy role in the kube-system namespace is given access to?
+ #+end_quote
+#+begin_src shell
+kubectl get roles -A
+kubectl describe role kube-proxy -n kube-system
+
+#+end_src
+**** Edit role
+#+begin_src shell
+kubctl edit role developer -n blue
+#+end_src
