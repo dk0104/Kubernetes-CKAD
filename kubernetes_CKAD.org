@@ -928,6 +928,7 @@ Anmisson Controller helps to implement better security messures to enforsce how 
 #+end_quote
 
 
+
 * Tool ideas etc.
 ** Bash alias entries and settings
 - alias entries
@@ -1506,3 +1507,19 @@ kubectl describe role kube-proxy -n kube-system
 #+begin_src shell
 kubctl edit role developer -n blue
 #+end_src
+*** Admission Controllers
+#+begin_quote
+Which admission controller is enabled in this cluster which is normally disabled?
+#+end_quote
+
+#+begin_src shell
+to chesck admission plugin ,
+/etc/kubernetes/maifests/kube-apiserver.yaml
+check --enable-admission-plugins
+#+end_src
+
+#+begin_src shell
+#check running plugins
+ps -ef | grep kube-apiserver | grep admission-plugins
+#+end_src
+#+RESULTS:
