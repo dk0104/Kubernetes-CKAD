@@ -942,8 +942,22 @@ Anmisson Controller helps to implement better security messures to enforsce how 
       king: FligtTicket
       singular: flightticket
       plural: flighttickets
+      shortnames:
+      - ft
+    versions:
+      - name: v1
+    schema:
+     openAPIV3Schema:
 
   #+end_src
+
+  #+RESULTS:
+** Operator Framework
+operatos are avialable on operator hub
+#+begin_src shell
+
+
+#+end_src
 
 * Tool ideas etc.
 ** Bash alias entries and settings
@@ -1540,3 +1554,13 @@ ps -ef | grep kube-apiserver | grep admission-plugins
 #+RESULTS:
 *** Validating and Mutating Admission Containers
 -
+*** Deployment Strategies
+*** Helm labs
+#+begin_src shell
+helm search hub chart-name
+helm search repo <repo name>
+helm repo list # list repositories
+helm list # shows installed pckgs
+helm pull --untar <pckg>
+
+#+end_src
